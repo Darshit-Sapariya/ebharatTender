@@ -1,0 +1,398 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>eBharat Tender — Vendor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:           '#000000',
+            'navy-mid':     '#1a1a1a',
+            'navy-dark':    '#000000',
+            orange:         '#ea580c',
+            'orange-light': '#fb923c',
+            accent:         '#f59e0b',
+            surface:        '#f8faff',
+            'surface-2':    '#f1f5f9',
+            text:           '#1e293b',
+            muted:          '#64748b',
+            border:         '#e2e8f0',
+          },
+          fontFamily: {
+            sora:   ['Sora', 'sans-serif'],
+            dmSans: ['"DM Sans"', 'sans-serif'],
+          },
+          width: {
+            sidebar: '240px',
+          },
+          height: {
+            topbar: '62px',
+          },
+          spacing: {
+            sidebar: '240px',
+            topbar:  '62px',
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* CSS custom properties still needed for dynamic sidebar/topbar spacing */
+    :root {
+      --sidebar-w: 240px;
+      --topbar-h:  62px;
+    }
+
+    /* Base resets */
+    body {
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Sora', sans-serif; }
+    a { text-decoration: none; }
+
+    /* Sidebar grid texture pseudo-element */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Active left accent bar */
+    .nav-item-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 3px;
+      background: #6366f1;
+      border-radius: 0 3px 3px 0;
+    }
+
+    /* Sidebar dimensions using CSS var (Tailwind can't use CSS vars in margin/left) */
+    .sidebar        { width: var(--sidebar-w); }
+    .topbar         { left: var(--sidebar-w); height: var(--topbar-h); }
+    .main-wrap      { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); }
+
+    @media (max-width: 991px) {
+      .sidebar    { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .topbar     { left: 0; }
+      .main-wrap  { margin-left: 0; }
+    }
+
+    /* Sidebar scrollbar */
+    .sidebar-nav::-webkit-scrollbar       { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+    /* Profile dropdown transition */
+    .profile-wrap.show .profile-chevron   { transform: rotate(180deg); }
+    .profile-wrap.show .profile-dropdown  {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0) !important;
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-text antialiased overflow-x-hidden">
+
+<!-- ═══════ SIDEBAR OVERLAY (mobile) ═══════ -->
+<div id="sidebarOverlay"
+     onclick="closeSidebar()"
+     class="sidebar-overlay hidden fixed inset-0 bg-slate-800/55 backdrop-blur-sm z-[1999]"></div>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside id="sidebar"
+       class="sidebar fixed top-0 left-0 h-screen bg-white border-r border-slate-200 flex flex-col z-[2000] overflow-hidden transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+
+  <!-- Brand -->
+  <div class="px-4 py-3 border-b border-slate-100 flex-shrink-0 relative z-[1]">
+    <a href="{% url 'public:home' %}"
+       class="flex items-center gap-[10px] no-underline rounded-[10px] px-3 py-[0.6rem] border border-[#f1e8eb]"
+       style="background: linear-gradient(90deg, rgba(0,0,0,0.04), rgba(234,88,12,0.05));">
+      <!-- Bar-chart icon -->
+     
+      <div class="leading-snug">
+        <div class="font-sora font-bold text-[0.9rem] text-slate-800 tracking-[-0.01em]">eBharat Tender</div>
+        <div class="text-[0.59rem] font-medium uppercase tracking-[0.07em] mt-px" style="color:#b45309;">Vendor Dashboard</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Nav -->
+  <div class="sidebar-nav flex-1 overflow-y-auto px-3 pb-4 pt-1 relative z-[1]">
+
+    <p class="px-2 pt-[1.1rem] pb-[0.4rem] text-[0.62rem] font-bold text-slate-400 tracking-[0.1em] uppercase">
+      Main Menu
+    </p>
+
+    <a href="{% url 'bids:bids_dashboard' %}"
+       class="nav-item relative flex items-center gap-[0.7rem] px-[0.85rem] py-[0.62rem] rounded-[10px] text-slate-800 no-underline text-[0.865rem] font-medium transition-all duration-[180ms] mb-[2px]
+              {% if request.resolver_match.url_name == 'bids_dashboard' %}nav-item-active bg-indigo-100 font-semibold border border-blue-200/50{% else %}hover:bg-slate-50{% endif %}">
+      <i class="fas fa-chart-pie w-[18px] text-center text-[0.9rem] flex-shrink-0
+                {% if request.resolver_match.url_name == 'bids_dashboard' %}text-indigo-500{% endif %}"></i>
+      Dashboard
+    </a>
+
+
+    <a href="{% url 'bids:mybids' %}"
+       class="nav-item relative flex items-center gap-[0.7rem] px-[0.85rem] py-[0.62rem] rounded-[10px] text-slate-800 no-underline text-[0.865rem] font-medium transition-all duration-[180ms] mb-[2px]
+              {% if request.resolver_match.url_name == 'mybids' %}nav-item-active bg-indigo-100 font-semibold border border-blue-200/50{% else %}hover:bg-slate-50{% endif %}">
+      <i class="fas fa-clipboard-list w-[18px] text-center text-[0.9rem] flex-shrink-0
+                {% if request.resolver_match.url_name == 'mybids' %}text-indigo-500{% endif %}"></i>
+      My Bids
+    </a>
+
+    <a href="{% url 'bids:my_watchlist' %}"
+       class="nav-item relative flex items-center gap-[0.7rem] px-[0.85rem] py-[0.62rem] rounded-[10px] text-slate-800 no-underline text-[0.865rem] font-medium transition-all duration-[180ms] mb-[2px]
+              {% if request.resolver_match.url_name == 'my_watchlist' %}nav-item-active bg-indigo-100 font-semibold border border-blue-200/50{% else %}hover:bg-slate-50{% endif %}">
+      <i class="fas fa-star w-[18px] text-center text-[0.9rem] flex-shrink-0
+                {% if request.resolver_match.url_name == 'my_watchlist' %}text-indigo-500{% endif %}"></i>
+      Watchlist
+    </a>
+
+    <a href="{% url 'funding:my_funding_requests' %}"
+       class="nav-item relative flex items-center gap-[0.7rem] px-[0.85rem] py-[0.62rem] rounded-[10px] text-slate-800 no-underline text-[0.865rem] font-medium transition-all duration-[180ms] mb-[2px]
+              {% if request.resolver_match.url_name == 'my_funding_requests' %}nav-item-active bg-indigo-100 font-semibold border border-blue-200/50{% else %}hover:bg-slate-50{% endif %}">
+      <i class="fas fa-hand-holding-usd w-[18px] text-center text-[0.9rem] flex-shrink-0
+                {% if request.resolver_match.url_name == 'my_funding_requests' %}text-indigo-500{% endif %}"></i>
+      My Funding
+    </a>
+
+    <div class="h-px bg-slate-100 my-[0.65rem]"></div>
+    <p class="px-2 pt-[1.1rem] pb-[0.4rem] text-[0.62rem] font-bold text-slate-400 tracking-[0.1em] uppercase">
+      Account
+    </p>
+
+    <a href="{% url 'bids:vendor_profile_update' %}"
+       class="nav-item relative flex items-center gap-[0.7rem] px-[0.85rem] py-[0.62rem] rounded-[10px] text-slate-800 no-underline text-[0.865rem] font-medium transition-all duration-[180ms] mb-[2px]
+              {% if request.resolver_match.url_name == 'vendor_profile_update' %}nav-item-active bg-indigo-100 font-semibold border border-blue-200/50{% else %}hover:bg-slate-50{% endif %}">
+      <i class="fas fa-user-cog w-[18px] text-center text-[0.9rem] flex-shrink-0
+                {% if request.resolver_match.url_name == 'vendor_profile_update' %}text-indigo-500{% endif %}"></i>
+      Profile Settings
+    </a>
+
+    <div class="h-px bg-slate-100 my-[0.65rem]"></div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="flex items-center gap-[0.65rem] px-[1.1rem] py-[0.85rem] border-t border-slate-100 flex-shrink-0 relative z-[1]">
+    {% if user.userprofile.profile_pic %}
+      <img src="{{ user.userprofile.profile_pic.url }}"
+           class="w-[34px] h-[34px] rounded-full object-cover border-2 border-slate-200 flex-shrink-0"
+           alt="Profile">
+    {% else %}
+      <img src="{% static 'images/Logo/default-profile.png' %}"
+           class="w-[34px] h-[34px] rounded-full object-cover border-2 border-slate-200 flex-shrink-0"
+           alt="Profile">
+    {% endif %}
+    <div class="min-w-0 flex-1">
+      <p class="text-[0.82rem] font-bold text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis m-0">
+        {{ user.username }}
+      </p>
+      {% if user.userprofile.role %}
+        <p class="text-[0.67rem] text-slate-400 capitalize m-0">{{ user.userprofile.role }}</p>
+      {% endif %}
+    </div>
+    <a href="{% url 'accounts:logout' %}" 
+       class="flex items-center justify-center w-[34px] h-[34px] rounded-[10px] bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors duration-200 flex-shrink-0 shadow-sm" title="Sign Out">
+      <i class="fas fa-sign-out-alt text-[0.85rem]"></i>
+    </a>
+  </div>
+
+</aside>
+
+
+<!-- ═══════ TOPBAR ═══════ -->
+<header class="topbar fixed top-0 right-0 bg-white/98 backdrop-blur-[12px] border-b border-slate-200 flex items-center px-6 gap-3 z-[1000] shadow-[0_1px_0_rgba(15,42,94,0.06)] transition-[left] duration-300">
+
+  <!-- Mobile toggle -->
+  <button id="sidebarToggle"
+          onclick="openSidebar()"
+          aria-label="Open menu"
+          class="lg:hidden flex items-center justify-center w-9 h-9 rounded-[9px] border-[1.5px] border-slate-200 bg-white text-slate-500 text-[0.95rem] flex-shrink-0 cursor-pointer transition-all duration-[180ms] hover:border-blue-200 hover:text-orange hover:bg-blue-50">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Page title -->
+  <div class="flex-1 min-w-0">
+    <p class="font-sora text-[0.95rem] font-bold text-navy whitespace-nowrap overflow-hidden text-ellipsis m-0">
+      Dashboard
+    </p>
+    <div class="flex items-center gap-1 text-[0.72rem] text-muted mt-px">
+      <span>Vendor Portal</span>
+      <i class="fas fa-chevron-right text-[0.6rem]"></i>
+      <span class="text-navy font-semibold">Dashboard</span>
+    </div>
+  </div>
+
+  <!-- Welcome chip -->
+  <div class="hidden sm:flex items-center gap-2 px-[0.85rem] py-[0.3rem] bg-surface border border-slate-200 rounded-[20px] text-[0.8rem] text-text font-medium whitespace-nowrap">
+    <span class="text-[0.85rem]">👋</span>
+    Welcome, <strong>{{ user.username }}</strong>
+  </div>
+
+  {% if user.userprofile.role %}
+  <span class="hidden sm:flex flex-shrink-0 px-2 py-[2px] rounded-[20px] text-[0.65rem] font-bold uppercase tracking-[0.04em] bg-blue-50 text-orange border border-blue-200">
+    {{ user.userprofile.role }}
+  </span>
+  {% endif %}
+
+  <!-- Mobile Logout Button (Top) -->
+  <a href="javascript:void(0)" onclick="logoutUser(event)" 
+     class="lg:hidden flex w-[38px] h-[38px] rounded-xl bg-red-50 border border-red-100 
+            items-center justify-center text-red-500 transition-all active:scale-95 ml-auto shadow-sm"
+     title="Sign Out">
+    <i class="fas fa-sign-out-alt text-[1rem]"></i>
+  </a>
+
+  <!-- Profile -->
+  <div id="profileWrap" class="profile-wrap relative">
+    <div onclick="toggleProfileDropdown()"
+         class="flex items-center gap-2 pl-[0.28rem] pr-[0.65rem] py-[0.28rem] rounded-[50px] border-[1.5px] border-slate-200 bg-white cursor-pointer flex-shrink-0 transition-all duration-[180ms] hover:border-blue-200 hover:bg-surface">
+      {% if user.userprofile.profile_pic %}
+        <img src="{{ user.userprofile.profile_pic.url }}"
+             class="w-7 h-7 rounded-full object-cover border-[1.5px] border-slate-200"
+             alt="Profile">
+      {% else %}
+        <img src="{% static 'images/Logo/default-profile.png' %}"
+             class="w-7 h-7 rounded-full object-cover border-[1.5px] border-slate-200"
+             alt="Profile">
+      {% endif %}
+      <span class="hidden sm:block text-[0.82rem] font-semibold text-text max-w-[100px] whitespace-nowrap overflow-hidden text-ellipsis">
+        {{ user.username }}
+      </span>
+      <i class="profile-chevron fas fa-chevron-down text-[0.62rem] text-muted transition-transform duration-200"></i>
+    </div>
+
+    <!-- Dropdown -->
+    <div class="profile-dropdown absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-[12px] shadow-[0_4px_16px_rgba(15,42,94,0.1)] min-w-[160px] opacity-0 invisible -translate-y-2 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] z-[2000] overflow-hidden">
+      <a href="{% url 'public:home' %}"
+         class="flex items-center gap-[0.6rem] px-[1.1rem] py-[0.65rem] text-text text-[0.85rem] font-medium no-underline transition-[background,color] duration-[150ms] hover:bg-surface hover:text-orange">
+        <i class="fas fa-home text-[0.9rem] text-muted"></i> Home
+      </a>
+      <div class="h-px bg-slate-200 my-1"></div>
+      <a href="{% url 'accounts:logout' %}"
+         class="flex items-center gap-[0.6rem] px-[1.1rem] py-[0.65rem] text-red-500 text-[0.85rem] font-medium no-underline transition-[background,color] duration-[150ms] hover:bg-red-50 hover:text-red-600">
+        <i class="fas fa-sign-out-alt text-[0.9rem] text-red-500"></i> Sign Out
+      </a>
+    </div>
+  </div>
+
+</header>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main-wrap min-h-screen transition-[margin-left] duration-300">
+
+
+
+  <div class="p-7 max-sm:p-4">
+    <div class="mt-4">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.nav-item').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 991) closeSidebar();
+    });
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 991) closeSidebar();
+  });
+
+  function toggleProfileDropdown() {
+    document.getElementById('profileWrap').classList.toggle('show');
+  }
+
+  window.addEventListener('click', function(e) {
+    const profileWrap = document.getElementById('profileWrap');
+    if (profileWrap && !profileWrap.contains(e.target)) {
+      profileWrap.classList.remove('show');
+    }
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Global Logout Confirmation
+    const logoutUrl = "{% url 'accounts:logout' %}";
+    const logoutLinks = document.querySelectorAll('a[href="' + logoutUrl + '"]');
+    logoutLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Ready to Leave?',
+          text: "You will be signed out of your session.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ea580c',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: 'Yes, Sign Out'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = logoutUrl;
+          }
+        });
+      });
+    });
+  });
+</script>
+
+<!-- Global Loading Overlay -->
+<div id="global-loader" class="fixed inset-0 z-[9999] flex items-center justify-center hidden" style="background-color: rgba(255, 255, 255, 0.82); backdrop-filter: blur(5px);">
+    <div class="flex flex-col items-center p-8 bg-white rounded-2xl shadow-2xl border border-slate-100">
+        <div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p class="mt-5 font-sora text-slate-800 font-extrabold text-[1.1rem]">Processing...</p>
+        <p class="text-[0.75rem] text-slate-500 mt-1 font-medium text-center max-w-[200px]">Please wait while we securely process your request and send notifications.</p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('submit', function(e) {
+        if (e.target.classList.contains('show-loader')) {
+            const loader = document.getElementById('global-loader');
+            if (loader) loader.classList.remove('hidden');
+        }
+    });
+</script>
+</body>
+</html>

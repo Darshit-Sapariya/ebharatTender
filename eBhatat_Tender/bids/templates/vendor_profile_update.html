@@ -1,0 +1,470 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  :root {
+    --blue: #3b4fd8;
+    --blue-light: #eef0fd;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --emerald: #10b981;
+    --navy: #1a1f36;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f2f8; }
+
+  /* ── Hero ── */
+  .ps-hero {
+    background: linear-gradient(115deg, #2c3a9e 0%, #3b4fd8 45%, #5a72f0 100%);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden; margin-bottom: 20px;
+  }
+  .ps-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .ps-hero-glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(50px); pointer-events: none;
+  }
+  .ps-hero-label {
+    font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.15em; color: rgba(255,255,255,0.5); margin-bottom: 6px;
+  }
+  .ps-hero-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 6px; line-height: 1.1; }
+  .ps-hero-sub { font-size: 0.78rem; color: rgba(255,255,255,0.55); max-width: 420px; line-height: 1.5; }
+  .ps-hero-icon {
+    width: 62px; height: 62px; border-radius: 16px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1.5rem; flex-shrink: 0;
+  }
+  .ps-status {
+    position: absolute; top: 18px; right: 24px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+    color: #6ee7b7; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .ps-status.rejected { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.3); color: #fda4af; }
+  .ps-status.pending  { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+  .ps-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; animation: psDot 2s infinite; }
+  @keyframes psDot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── Layout grid ── */
+  .ps-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr 296px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* ── Card ── */
+  .ps-card {
+    background: #fff; border-radius: 14px;
+    border: 1px solid #e2e8f0; overflow: hidden;
+  }
+
+  /* ── Profile sidebar card ── */
+  .ps-avatar-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 26px 18px 18px; border-bottom: 1px solid #f1f5f9;
+  }
+  .ps-avatar-ring {
+    position: relative; margin-bottom: 12px;
+  }
+  .ps-avatar {
+    width: 88px; height: 88px; border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px rgba(59,79,216,0.2), 0 8px 24px rgba(59,79,216,0.15);
+    overflow: hidden; display: block; object-fit: cover;
+  }
+  .ps-cam {
+    position: absolute; bottom: 2px; right: 2px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #f97316; border: 2.5px solid #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.6rem; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ps-cam:hover { background: #ea580c; }
+  .ps-name { font-size: 0.95rem; font-weight: 800; color: var(--navy); margin-bottom: 5px; }
+  .ps-role {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    background: var(--blue-light); color: var(--blue);
+    font-size: 0.57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+
+  .ps-meta { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 6px; }
+  .ps-meta-row {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: 8px;
+    background: #f8fafc; border: 1px solid #f1f5f9;
+  }
+  .ps-meta-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: #fff; border: 1px solid #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; flex-shrink: 0;
+  }
+  .ps-meta-icon.b { color: var(--blue); }
+  .ps-meta-icon.g { color: var(--emerald); }
+  .ps-meta-lbl { font-size: 0.54rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #94a3b8; line-height: 1; margin-bottom: 2px; }
+  .ps-meta-val { font-size: 0.72rem; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+
+  .ps-actions { padding: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .ps-btn-primary {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    width: 100%; padding: 11px; border-radius: 9px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    border: none; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(234,88,12,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .ps-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(234,88,12,0.4); }
+  .ps-btn-secondary {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    width: 100%; padding: 10px; border-radius: 9px;
+    background: #fff; border: 1px solid #e2e8f0;
+    color: #64748b; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ps-btn-secondary:hover { background: #f8fafc; color: #334155; }
+
+  /* ── Panel header ── */
+  .ps-panel-hdr {
+    display: flex; align-items: center; gap: 12px;
+    padding: 17px 20px; border-bottom: 1px solid #f1f5f9;
+    position: relative;
+  }
+  .ps-panel-hdr::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; border-radius: 0 3px 3px 0;
+  }
+  .ac-blue::before  { background: var(--blue); }
+  .ac-amber::before { background: var(--amber); }
+  .ac-rose::before  { background: var(--rose); }
+
+  .ps-panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; flex-shrink: 0;
+  }
+  .ps-panel-icon.b { background: var(--blue-light); color: var(--blue); }
+  .ps-panel-icon.a { background: #fffbeb; color: var(--amber); }
+  .ps-panel-icon.r { background: #fff1f2; color: var(--rose); }
+  .ps-panel-title { font-size: 0.88rem; font-weight: 800; color: var(--navy); line-height: 1.1; }
+  .ps-panel-sub { font-size: 0.63rem; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+
+  /* ── Form fields ── */
+  .ps-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .ps-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ps-fg { display: flex; flex-direction: column; gap: 5px; }
+  .ps-lbl {
+    font-size: 0.57rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: #94a3b8;
+  }
+  .ps-fw { position: relative; }
+  .ps-fi {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    color: #cbd5e1; font-size: 0.78rem; pointer-events: none;
+  }
+  .ps-fi-r {
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    color: #e2e8f0; font-size: 0.7rem; pointer-events: none;
+  }
+  .ps-field {
+    width: 100%; padding: 10px 12px 10px 36px;
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    background: #f8fafc;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600; color: #334155;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .ps-field:focus {
+    outline: none; border-color: var(--blue);
+    background: #fff; box-shadow: 0 0 0 3px rgba(59,79,216,0.1);
+  }
+  .ps-field::placeholder { color: #cbd5e1; font-weight: 400; font-size: 0.78rem; }
+  .ps-field[readonly] { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+  .ps-field.rose:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(244,63,94,0.1); }
+  textarea.ps-field { padding-top: 10px; padding-bottom: 10px; resize: none; line-height: 1.5; }
+
+  /* ── Gov display ── */
+  .ps-gov-val {
+    padding: 10px 14px; background: #f8fafc;
+    border: 1.5px solid #f1f5f9; border-radius: 8px;
+    font-size: 0.82rem; font-weight: 600; color: #475569;
+  }
+  .ps-gov-val.mono { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.05em; }
+  .ps-view-doc {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px; border-radius: 8px;
+    background: #f0fdf4; border: 1.5px solid #bbf7d0;
+    color: #15803d; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 700; text-decoration: none;
+    transition: background 0.15s;
+  }
+  .ps-view-doc:hover { background: #dcfce7; }
+
+  /* ── Info note ── */
+  .ps-note {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 9px 12px; background: #f8fafc;
+    border: 1px solid #f1f5f9; border-radius: 8px;
+  }
+  .ps-note i { color: #cbd5e1; font-size: 0.72rem; margin-top: 1px; flex-shrink: 0; }
+  .ps-note p { font-size: 0.67rem; color: #94a3b8; font-weight: 500; line-height: 1.5; }
+
+  /* ── Fade animation ── */
+  @keyframes psFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .ps-anim { animation: psFadeUp 0.4s ease both; }
+  .ps-d1 { animation-delay: 0.05s; }
+  .ps-d2 { animation-delay: 0.1s; }
+  .ps-d3 { animation-delay: 0.15s; }
+</style>
+
+<div style="padding: 22px 26px;">
+
+  <!-- Hero Banner -->
+  <div class="ps-hero ps-anim">
+    <div class="ps-hero-glow" style="width:200px;height:200px;background:rgba(255,255,255,0.07);top:-80px;right:100px;"></div>
+    <div style="position:relative;z-index:1;">
+      <div class="ps-hero-label">Official Administrative Identity</div>
+      <div class="ps-hero-title">Identity Settings</div>
+      <div class="ps-hero-sub">Manage your official profile details, verification documents, and account security.</div>
+    </div>
+   
+
+    {% if profile.status == 'approved' %}
+    <div class="ps-status">
+      <div class="ps-dot"></div> Profile Approved
+    </div>
+    {% elif profile.status == 'rejected' %}
+    <div class="ps-status rejected">
+      <i class="fas fa-times-circle"></i> Rejected
+    </div>
+    {% else %}
+    <div class="ps-status pending">
+      <i class="fas fa-shield-halved"></i> KYC Pending
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Form -->
+  <form method="POST" enctype="multipart/form-data" class="show-loader">
+    {% csrf_token %}
+
+    <div class="ps-grid">
+
+      <!-- ── Profile Card ── -->
+      <div class="ps-card ps-anim ps-d1">
+        <div class="ps-avatar-wrap">
+          <div class="ps-avatar-ring">
+            <div style="position:relative;">
+              {% if profile.profile_pic %}
+                <img id="avatarPreview" src="{{ profile.profile_pic.url }}" class="ps-avatar">
+              {% else %}
+                <img id="avatarPreview" src="{% static 'images/Logo/default-profile.png' %}" class="ps-avatar">
+              {% endif %}
+              <label for="profilePic" class="ps-cam">
+                <i class="fas fa-camera"></i>
+              </label>
+              <input type="file" id="profilePic" name="profile_pic" accept="image/*" style="display:none">
+            </div>
+          </div>
+          <div class="ps-name">{{ request.user.username }}</div>
+          <span class="ps-role">Tender Creator / Department</span>
+        </div>
+
+        <div class="ps-meta">
+          <div class="ps-meta-row">
+            <div class="ps-meta-icon b"><i class="fas fa-user"></i></div>
+            <div>
+              <div class="ps-meta-lbl">Login User</div>
+              <div class="ps-meta-val">{{ request.user.username }}</div>
+            </div>
+          </div>
+          <div class="ps-meta-row">
+            <div class="ps-meta-icon g"><i class="fas fa-envelope"></i></div>
+            <div>
+              <div class="ps-meta-lbl">Primary Email</div>
+              <div class="ps-meta-val">{{ request.user.email }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ps-actions">
+          <button type="submit" class="ps-btn-primary">
+            <i class="fas fa-cloud-arrow-up"></i> Update Profile
+          </button>
+          <a href="{% url 'bids:bids_dashboard' %}" class="ps-btn-secondary">
+            <i class="fas fa-arrow-left" style="font-size:0.7rem"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- ── General Information ── -->
+      <div class="ps-card ps-anim ps-d2">
+        <div class="ps-panel-hdr ac-blue">
+          <div class="ps-panel-icon b"><i class="fas fa-address-book"></i></div>
+          <div>
+            <div class="ps-panel-title">General Information</div>
+            <div class="ps-panel-sub">Official contact and professional profile</div>
+          </div>
+        </div>
+        <div class="ps-body">
+
+          <div class="ps-row2">
+            <div class="ps-fg">
+              <label class="ps-lbl">Full Name</label>
+              <div class="ps-fw">
+                <i class="fas fa-user ps-fi"></i>
+                <input type="text" name="full_name" value="{{ profile.full_name }}" placeholder="Full Name" class="ps-field">
+              </div>
+            </div>
+            <div class="ps-fg">
+              <label class="ps-lbl">Mobile Number</label>
+              <div class="ps-fw">
+                <i class="fas fa-phone ps-fi"></i>
+                <input type="tel" name="mobile" value="{{ profile.mobile }}" placeholder="Mobile" class="ps-field">
+              </div>
+            </div>
+          </div>
+
+          <div class="ps-row2">
+            <div class="ps-fg">
+              <label class="ps-lbl">Login Username</label>
+              <div class="ps-fw">
+                <i class="fas fa-user-lock ps-fi"></i>
+                <input type="text" value="{{ request.user.username }}" readonly class="ps-field">
+                <i class="fas fa-lock ps-fi-r"></i>
+              </div>
+            </div>
+            <div class="ps-fg">
+              <label class="ps-lbl">Official Email Address</label>
+              <div class="ps-fw">
+                <i class="fas fa-at ps-fi"></i>
+                <input type="email" name="email" value="{{ request.user.email }}" placeholder="your@email.com" class="ps-field">
+              </div>
+            </div>
+          </div>
+
+          <div class="ps-fg">
+            <label class="ps-lbl">Designation / Role in Dept</label>
+            <div class="ps-fw">
+              <i class="fas fa-briefcase ps-fi"></i>
+              <input type="text" name="designation" value="{{ profile.designation|default:'' }}" placeholder="e.g. Chief Executive Officer" class="ps-field">
+            </div>
+          </div>
+
+          <div class="ps-fg">
+            <label class="ps-lbl">Official Address</label>
+            <div class="ps-fw">
+              <i class="fas fa-map-location-dot" style="position:absolute;left:13px;top:12px;color:#cbd5e1;font-size:0.78rem;pointer-events:none;"></i>
+              <textarea name="address" rows="4" placeholder="Enter complete office address..." class="ps-field">{{ profile.address }}</textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Right Column ── -->
+      <div style="display:flex;flex-direction:column;gap:16px;" class="ps-anim ps-d3">
+
+        <!-- Government Identity -->
+        <div class="ps-card">
+          <div class="ps-panel-hdr ac-amber">
+            <div class="ps-panel-icon a"><i class="fas fa-id-card"></i></div>
+            <div>
+              <div class="ps-panel-title">Government Identity</div>
+              <div class="ps-panel-sub">Verified KYC document details</div>
+            </div>
+          </div>
+          <div class="ps-body">
+            <div class="ps-row2">
+              <div class="ps-fg">
+                <label class="ps-lbl">ID Type</label>
+                <div class="ps-gov-val">{{ profile.gov_id_type }}</div>
+              </div>
+              <div class="ps-fg">
+                <label class="ps-lbl">Document No.</label>
+                <div class="ps-gov-val mono">{{ profile.masked_id }}</div>
+              </div>
+            </div>
+            <a href="{% if profile.gov_id_upload %}{{ profile.gov_id_upload.url }}{% else %}#{% endif %}" target="_blank" class="ps-view-doc">
+              <i class="fas fa-file-shield"></i> View Verified Document
+            </a>
+          </div>
+        </div>
+
+        <!-- Account Security -->
+        <div class="ps-card">
+          <div class="ps-panel-hdr ac-rose">
+            <div class="ps-panel-icon r"><i class="fas fa-shield-halved"></i></div>
+            <div>
+              <div class="ps-panel-title">Account Security</div>
+              <div class="ps-panel-sub">Change your login password</div>
+            </div>
+          </div>
+          <div class="ps-body">
+            <div class="ps-fg">
+              <label class="ps-lbl">Current Password</label>
+              <div class="ps-fw">
+                <i class="fas fa-lock ps-fi"></i>
+                <input type="password" name="old_password" placeholder="••••••••" class="ps-field rose">
+              </div>
+            </div>
+            <div class="ps-fg">
+              <label class="ps-lbl">New Password</label>
+              <div class="ps-fw">
+                <i class="fas fa-key ps-fi" style="transform:translateY(-50%) rotate(135deg)"></i>
+                <input type="password" name="new_password" placeholder="••••••••" class="ps-field rose">
+              </div>
+            </div>
+            <div class="ps-fg">
+              <label class="ps-lbl">Confirm New</label>
+              <div class="ps-fw">
+                <i class="fas fa-check-double ps-fi"></i>
+                <input type="password" name="confirm_password" placeholder="••••••••" class="ps-field rose">
+              </div>
+            </div>
+            <div class="ps-note">
+              <i class="fas fa-circle-info"></i>
+              <p>Leave password fields blank if you don't wish to update your credentials.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /right -->
+
+    </div><!-- /ps-grid -->
+  </form>
+
+</div><!-- /page wrap -->
+
+<script>
+  document.getElementById('profilePic').addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { document.getElementById('avatarPreview').src = e.target.result; };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,274 @@
+{% extends "base2.html" %}
+{% block content %}
+
+<style>
+  /* Hero decorative circles */
+  .hero-banner::before,
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hero-banner::before {
+    width: 260px; height: 260px;
+    right: -60px; top: -80px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+  .hero-banner::after {
+    width: 160px; height: 160px;
+    right: 40px; bottom: -60px;
+    border: 1.5px solid rgba(255,255,255,0.05);
+  }
+  /* Hero grid texture */
+  .hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* Hover transforms */
+  .stat-card:hover  { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(15,42,94,0.12); border-color: #cbd5e1; }
+  .btn-create:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); background: #f8fafc; color: #8f2135; }
+  .activity-item:hover { border-color: #cbd5e1; background: white; box-shadow: 0 4px 12px rgba(15,42,94,0.05); }
+  .quick-link:hover { background: white; border-color: #93c5fd; color: #ea580c; transform: translateX(4px); }
+</style>
+
+<!-- ══════ PAGE WRAPPER ══════ -->
+<div class="flex flex-col gap-6 max-sm:gap-4">
+
+  <!-- ══════ HERO ══════ -->
+  <div class="hero-banner relative flex items-center justify-between gap-6 flex-wrap px-8 py-7 rounded-2xl overflow-hidden"
+       style="background:linear-gradient(135deg, #7580f7 0%,#7275c3 45%,#5e58c1 100%);
+              box-shadow:0 8px 24px rgba(26,86,219,0.15);">
+    <div class="hero-grid"></div>
+    <div class="relative z-[1] flex-1 min-w-0">
+      <p class="font-dmSans text-[0.72rem] font-medium tracking-[0.1em] uppercase mb-[0.3rem]" style="color:rgba(255,255,255,0.6);">Overview</p>
+      <h1 class="font-sora text-[1.6rem] font-extrabold text-white leading-[1.25] mb-[0.35rem]">Vendor Dashboard</h1>
+      <p class="text-[0.85rem] mb-0" style="color:rgba(255,255,255,0.7);">Welcome back! Track your active bids, monitor performance, and discover new tenders.</p>
+    </div>
+    <div class="relative z-[1] flex-shrink-0">
+      <a href="{% url 'public:tenders' %}"
+         class="btn-create inline-flex items-center gap-2 px-5 py-3 rounded-[10px] bg-white text-orange font-sora text-[0.85rem] font-bold no-underline transition-all duration-200"
+         style="box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+        <i class="fas fa-search"></i> Find Tenders
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════ STATS GRID ══════ -->
+  <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-5">
+
+    <a href="{% url 'public:tenders' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0 bg-blue-50 text-orange-light">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Live Tenders</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ open_count }}</div>
+      </div>
+    </a>
+
+    <a href="{% url 'bids:mybids' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0 bg-amber-50 text-accent">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Total Applied</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ applied_count }}</div>
+      </div>
+    </a>
+
+    <a href="{% url 'bids:mybids' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0 bg-green-50 text-emerald-500">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Approved Bids</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ approved_count }}</div>
+      </div>
+    </a>
+
+    <a href="{% url 'bids:mybids' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0 bg-red-50 text-red-400">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Pending</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ pending_count }}</div>
+      </div>
+    </a>
+
+    <a href="{% url 'bids:mybids' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0" style="background:#ecfdf5; color:#059669;">
+        <i class="fas fa-trophy"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Awarded</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ awarded_tenders.count }}</div>
+      </div>
+    </a>
+
+    <a href="{% url 'funding:my_funding_requests' %}"
+       class="stat-card flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 no-underline transition-all duration-200"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-[1rem] sm:text-[1.4rem] flex-shrink-0" style="background:#fff7ed; color:#ea580c;">
+        <i class="fas fa-hand-holding-usd"></i>
+      </div>
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="text-[0.55rem] sm:text-[0.78rem] font-semibold text-muted uppercase tracking-wider mb-0.5 sm:mb-[0.3rem] whitespace-nowrap overflow-hidden text-ellipsis">Funding</div>
+        <div class="font-sora text-[1rem] sm:text-[1.7rem] font-extrabold text-navy leading-none">{{ funding_count }}</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ══════ CONTENT PANELS ══════ -->
+  <div class="row g-4 m-0">
+
+    <!-- Left: Recent Tenders -->
+    <div class="col-lg-8 p-0 pe-lg-3">
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col h-full"
+           style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+          <h2 class="font-sora text-[1.05rem] font-bold text-navy flex items-center gap-2 m-0">
+            <i class="fas fa-history text-slate-400"></i> Recent Tenders
+          </h2>
+        </div>
+        <div class="p-6 flex-1">
+          <div class="flex flex-col gap-4">
+            {% for tender in recent_tenders %}
+            <div class="activity-item flex items-center justify-between px-4 py-4 border border-slate-200 rounded-xl bg-surface transition-all duration-200">
+              <div>
+                <div class="font-sora text-[0.95rem] font-bold text-navy mb-[0.2rem]">{{ tender.title }}</div>
+                <div class="text-[0.8rem] text-muted">Closing Date: {{ tender.closing_date|date:"d M Y" }}</div>
+              </div>
+              <div>
+                {% if tender.status == "open" %}
+                  <span class="px-[14px] py-[6px] rounded-[20px] text-[0.75rem] font-bold uppercase tracking-[0.04em] bg-green-100 text-green-800">Open</span>
+                {% else %}
+                  <span class="px-[14px] py-[6px] rounded-[20px] text-[0.75rem] font-bold uppercase tracking-[0.04em] bg-slate-100 text-slate-600">Closed</span>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="text-center p-4 text-muted">
+              <i class="fas fa-folder-open mb-3 block text-[2rem] opacity-50"></i>
+              <p>No recent tenders available.</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Notifications & Quick Links -->
+    <div class="col-lg-4 p-0">
+
+      <!-- Notifications -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-4"
+           style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+          <h2 class="font-sora text-[1.05rem] font-bold text-navy flex items-center gap-2 m-0">
+            <i class="fas fa-bell text-slate-400"></i> Latest Notifications
+          </h2>
+          <a href="{% url 'accounts:view_all_notifications' %}" class="text-[0.75rem] font-semibold text-orange no-underline hover:underline">View All</a>
+        </div>
+        <div class="flex flex-col gap-4 p-6">
+          {% for note in recent_notifications %}
+          <div class="flex items-center justify-between px-3 py-3 border rounded-xl transition-all duration-200"
+               style="background:transparent; border-color:rgba(0,0,0,0.05);">
+            <div class="text-[0.85rem]">
+              <div class="font-semibold text-slate-700">{{ note.message }}</div>
+              <div class="text-muted text-xs">{{ note.created_at|timesince }} ago</div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-3 text-muted text-sm">No new notifications.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden"
+           style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+        <div class="flex items-center px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+          <h2 class="font-sora text-[1.05rem] font-bold text-navy flex items-center gap-2 m-0">
+            <i class="fas fa-bolt text-slate-400"></i> Quick Actions
+          </h2>
+        </div>
+        <div class="p-3">
+          <a href="{% url 'bids:mybids' %}"
+             class="quick-link flex items-center gap-[10px] px-5 py-[0.85rem] bg-surface border border-slate-200 rounded-[10px] text-text font-semibold text-[0.9rem] no-underline transition-all duration-200 mb-3">
+            <i class="fas fa-clipboard-list text-[1.1rem]" style="color:#93c5fd;"></i>
+            <span>View My Bids</span>
+          </a>
+          <a href="{% url 'funding:my_funding_requests' %}"
+             class="quick-link flex items-center gap-[10px] px-5 py-[0.85rem] bg-surface border border-slate-200 rounded-[10px] text-text font-semibold text-[0.9rem] no-underline transition-all duration-200 mb-3">
+            <i class="fas fa-money-check-alt text-[1.1rem]" style="color:#93c5fd;"></i>
+            <span>My Funding Requests</span>
+          </a>
+          <a href="{% url 'tenders:updateProfile' %}"
+             class="quick-link flex items-center gap-[10px] px-5 py-[0.85rem] bg-surface border border-slate-200 rounded-[10px] text-text font-semibold text-[0.9rem] no-underline transition-all duration-200">
+            <i class="fas fa-user-cog text-[1.1rem]" style="color:#93c5fd;"></i>
+            <span>Update Profile</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ RECENTLY APPLIED BIDS ══════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden mt-4"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+      <h2 class="font-sora text-[1.05rem] font-bold text-navy flex items-center gap-2 m-0">
+        <i class="fas fa-paper-plane text-slate-400"></i> Recently Applied Bids
+      </h2>
+      <a href="{% url 'bids:mybids' %}" class="text-[0.75rem] font-semibold text-orange no-underline hover:underline">Manage Bids</a>
+    </div>
+    <div class="p-6">
+      <div class="row g-3">
+        {% for bid in applied_tenders|slice:":3" %}
+        <div class="col-md-4">
+          <div class="activity-item flex flex-col items-start gap-2 h-full px-4 py-5 border border-slate-200 rounded-xl bg-surface transition-all duration-200">
+            <div class="font-sora text-[0.95rem] font-bold text-navy truncate w-full">{{ bid.tender.title }}</div>
+            <div class="flex justify-between w-full items-center">
+              <span class="px-[14px] py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em]
+                {% if bid.status == 'approved' %}bg-green-100 text-green-800
+                {% elif bid.status == 'rejected' %}bg-slate-100 text-slate-600
+                {% else %}bg-amber-50 text-amber-800{% endif %}">
+                {{ bid.status|capfirst }}
+              </span>
+              <span class="font-bold text-slate-700 text-sm">₹ {{ bid.bid_amount }}</span>
+            </div>
+            <a href="{% url 'bids:bid_detail' bid.id %}"
+               class="w-full text-center px-3 py-[0.4rem] mt-2 rounded-lg border border-slate-200 bg-white text-navy text-[0.75rem] font-semibold no-underline hover:bg-blue-50 hover:border-blue-200 hover:text-orange transition-all duration-200">
+              View Details
+            </a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-4 text-muted">
+          <p>You haven't applied for any tenders yet.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends "base1.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  /* Pseudo-elements & focus rings — Tailwind cannot handle these */
+
+  /* Header decoration (matched to Tender Creator) */
+  .tc-header::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none;
+  }
+  .tc-header::after {
+    content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    right: -20px; top: -30px; pointer-events: none;
+  }
+  @media (min-width: 640px) {
+    .tc-header::after { width: 220px; height: 220px; right: -50px; top: -70px; }
+  }
+
+  .form-panel:focus-within { box-shadow: 0 4px 20px rgba(26,86,219,0.1); border-color: #bfdbfe; }
+  
+  /* Panel accents (matched to Tender Creator) */
+  .ph-indigo .panel-head { border-left: 3px solid #6366f1; }
+  .ph-amber  .panel-head { border-left: 3px solid #f59e0b; }
+  .ph-red    .panel-head { border-left: 3px solid #ef4444; }
+
+  .field-input:focus,
+  .field-select:focus,
+  .field-textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    background: white;
+  }
+
+  .field-input::placeholder,
+  .field-textarea::placeholder { color: #cbd5e1; }
+
+  .field-input:read-only,
+  .field-select:disabled {
+    background: #f8fafc;
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  .file-input::file-selector-button {
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    margin-right: 0.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6d28d9;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .file-input::file-selector-button:hover { background: #ede9fe; }
+
+  .avatar-ring:hover {
+    box-shadow: 0 0 0 4px rgba(123,28,46,0.15), 0 8px 32px rgba(15,42,94,0.18);
+  }
+
+  .save-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(71,85,105,0.4);
+  }
+</style>
+
+
+<div class="flex flex-col gap-0">
+  <!-- ══════ HEADER ══════ -->
+  <div class="tc-header relative rounded-2xl overflow-hidden flex items-center justify-between gap-4 px-6 sm:px-8 py-4 sm:py-6 mb-6"
+       style="background: linear-gradient(135deg, #7580f7 0%, #7275c3 50%, #5e58c1 100%);">
+    <div class="relative z-[1]">
+      <p class="text-[0.62rem] sm:text-[0.7rem] font-semibold tracking-[0.1em] uppercase text-white/40 mb-1">Official Administrative Identity</p>
+      <h1 class="font-sora text-[1.15rem] sm:text-[1.35rem] font-extrabold text-white leading-tight mb-[0.2rem]">Identity Settings</h1>
+      <p class="text-[0.72rem] sm:text-[0.8rem] text-white/48 hidden sm:block">Manage your official profile details, verification documents, and account security.</p>
+    </div>
+    <div class="relative z-[1] w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20 bg-white/10 backdrop-blur-md">
+      <i class="fas fa-id-card text-white text-xl opacity-90"></i>
+    </div>
+
+    <!-- Status pills -->
+    <div class="relative z-[1] flex flex-col gap-2 flex-shrink-0">
+      {% if user.userprofile.status == 'approved' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.6rem] font-black tracking-widest uppercase border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+        <i class="fas fa-check-circle"></i> Profile Approved
+      </span>
+      {% elif user.userprofile.status == 'rejected' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.6rem] font-black tracking-widest uppercase border border-red-500/30 bg-red-500/10 text-red-300">
+        <i class="fas fa-times-circle"></i> Profile Rejected
+      </span>
+      {% else %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.6rem] font-black tracking-widest uppercase border border-amber-500/30 bg-amber-500/10 text-amber-300">
+        <i class="fas fa-clock"></i> Review Pending
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- ══════ MAIN FORM ══════ -->
+  <form method="POST" enctype="multipart/form-data" class="show-loader">
+    {% csrf_token %}
+
+    <!-- ══════ 3-SECTION RESPONSIVE LAYOUT ══════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-10">
+
+      <!-- ── SECTION 1: IDENTITY & OVERVIEW (lg:col-span-3) ── -->
+      <div class="lg:col-span-3 flex flex-col gap-6">
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col sticky top-6"
+             style="box-shadow: 0 4px 15px rgba(15,42,94,0.06);">
+          
+          <div class="flex flex-col items-center text-center px-6 pt-8 pb-6 border-b border-slate-100 bg-slate-50/30">
+            <div class="relative mb-5">
+              <div class="avatar-ring w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-xl transition-all duration-300">
+                {% if user.userprofile.profile_pic %}
+                  <img src="{{ user.userprofile.profile_pic.url }}" class="w-full h-full object-cover" alt="Profile">
+                {% else %}
+                  <img src="{% static 'images/Logo/default-profile.png' %}" class="w-full h-full object-cover" alt="Default">
+                {% endif %}
+              </div>
+              <input type="file" name="profile_pic" id="picUpload" class="hidden" accept="image/*">
+              <label for="picUpload"
+                     class="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-orange border-2 border-white text-white flex items-center justify-center text-[0.8rem] cursor-pointer transition-all hover:bg-orange-600 shadow-md">
+                <i class="fas fa-camera"></i>
+              </label>
+            </div>
+            <h2 class="font-sora text-[1.1rem] font-extrabold text-slate-800 mb-1 tracking-tight break-words w-full">
+              {{ request.user.username }}
+            </h2>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[0.65rem] font-bold uppercase tracking-wider">
+              {% if user.userprofile.role %}
+                {{ user.userprofile.get_role_display }}
+              {% else %}
+                Role Not Set
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="p-5 flex flex-col gap-3">
+            <div class="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
+              <i class="fas fa-id-badge text-indigo-400 text-[0.8rem]"></i>
+              <div class="min-w-0">
+                <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-tighter m-0">Login User</p>
+                <p class="text-[0.75rem] font-bold text-slate-600 m-0 truncate">{{ request.user.username }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
+              <i class="fas fa-envelope text-emerald-400 text-[0.8rem]"></i>
+              <div class="min-w-0">
+                <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-tighter m-0">Primary Email</p>
+                <p class="text-[0.75rem] font-bold text-slate-600 m-0 truncate">{{ request.user.email }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 pb-6 pt-2 flex flex-col gap-3">
+            <button type="submit"
+                    class="save-btn w-full py-3.5 rounded-2xl text-white font-sora font-extrabold text-[0.9rem] flex items-center justify-center gap-2 border-none cursor-pointer transition-all duration-200 shadow-lg shadow-orange/20"
+                    style="background: linear-gradient(135deg, #ea580c, #f97316);">
+              <i class="fas fa-cloud-upload-alt"></i> Update Profile
+            </button>
+            <a href="{% url 'tenders:dashboard' %}"
+               class="w-full py-3 rounded-2xl text-center text-slate-500 font-sora text-[0.8rem] font-bold no-underline bg-white border border-slate-200 transition-all hover:bg-slate-50">
+              Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 2: PROFILE DETAILS (lg:col-span-5) ── -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        <div class="form-panel ph-indigo bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col transition-all duration-200 shadow-sm">
+          <div class="panel-head flex items-center gap-4 px-8 py-6 border-b border-slate-100 bg-slate-50/30">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center bg-indigo-50 text-indigo-600">
+              <i class="fas fa-address-book"></i>
+            </div>
+            <div>
+              <h3 class="font-sora text-[1.05rem] font-black text-slate-800 m-0">General Information</h3>
+              <p class="text-[0.7rem] text-slate-400 m-0">Official contact and professional profile</p>
+            </div>
+          </div>
+
+          <div class="p-8 flex flex-col gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Full Name</label>
+                <div class="relative group">
+                  <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-orange text-[0.8rem] transition-colors"></i>
+                  <input type="text" name="full_name" value="{{ user.userprofile.full_name|default:'' }}"
+                         placeholder="Enter legal name"
+                         class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Mobile Number</label>
+                <div class="relative group">
+                  <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-orange text-[0.8rem] transition-colors"></i>
+                  <input type="tel" name="mobile" value="{{ user.userprofile.mobile|default:'' }}"
+                         placeholder="10-digit mobile"
+                         class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Login Username</label>
+                <div class="relative">
+                  <i class="fas fa-id-card-clip absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-[0.8rem]"></i>
+                  <input type="text" value="{{ request.user.username }}" readonly
+                         class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-100 text-[0.85rem] font-bold text-slate-500 cursor-not-allowed">
+                  <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-slate-200 text-[0.7rem]"></i>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Official Email Address</label>
+                <div class="relative group">
+                  <i class="fas fa-at absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-orange text-[0.8rem] transition-colors"></i>
+                  <input type="email" name="email" value="{{ request.user.email }}"
+                         placeholder="your@email.com"
+                         class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Designation / Role in Dept</label>
+              <div class="relative group">
+                <i class="fas fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-orange text-[0.8rem] transition-colors"></i>
+                <input type="text" name="designation" value="{{ user.userprofile.designation|default:'' }}"
+                       placeholder="e.g. Senior Procurement Officer"
+                       {% if user.userprofile.designation %}readonly{% endif %}
+                       class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700 transition-all
+                              {% if user.userprofile.designation %}cursor-not-allowed bg-slate-100 text-slate-500{% endif %}">
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="font-sora text-[0.65rem] font-black text-slate-500 uppercase tracking-widest">Official Address</label>
+              <div class="relative group">
+                <i class="fas fa-map-location-dot absolute left-4 top-4 text-slate-300 group-focus-within:text-orange text-[0.8rem] transition-colors"></i>
+                <textarea name="address" rows="4" placeholder="Full office/registered address"
+                          class="field-textarea w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700 resize-none transition-all duration-200">{{ user.userprofile.address|default:'' }}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 3: VERIFICATION & SECURITY (lg:col-span-4) ── -->
+      <div class="lg:col-span-4 flex flex-col gap-6">
+        
+
+        <!-- Gov ID Section -->
+        <div class="form-panel ph-amber bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-200">
+          <div class="panel-head flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-amber-50/30">
+            <div class="w-[34px] h-[34px] rounded-[10px] bg-amber-50 flex items-center justify-center text-amber-600">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <h3 class="font-sora text-[0.9rem] font-black text-slate-800 m-0">Government Identity</h3>
+          </div>
+          <div class="p-6 flex flex-col gap-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">ID Type</label>
+                <input type="text" name="gov_id_type" value="{{ user.userprofile.gov_id_type }}" readonly
+                       class="field-input w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-100 text-[0.85rem] font-bold text-slate-500">
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">Document No.</label>
+                <input type="text" name="gov_id_number" value="{{ profile.gov_id_number|default:'Locked' }}" readonly
+                       class="field-input w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-100 text-[0.85rem] font-bold text-slate-500 font-mono">
+              </div>
+            </div>
+            {% if user.userprofile.gov_id_upload %}
+            <a href="{{ user.userprofile.gov_id_upload.url }}" target="_blank"
+               class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-[0.75rem] font-bold no-underline hover:bg-emerald-100 transition-all">
+              <i class="fas fa-file-check"></i> View Verified Document
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Account Security Section -->
+        <div class="form-panel ph-red bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-200">
+          <div class="panel-head flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-red-50/50">
+            <div class="w-[34px] h-[34px] rounded-[10px] bg-red-50 flex items-center justify-center text-red-600">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="font-sora text-[0.9rem] font-black text-slate-800 m-0">Account Security</h3>
+          </div>
+          <div class="p-6 flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">Current Password</label>
+              <div class="relative group">
+                <i class="fas fa-shield absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 text-[0.8rem] transition-colors"></i>
+                <input type="password" name="old_password" placeholder="••••••••"
+                       class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">New Password</label>
+              <div class="relative group">
+                <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 text-[0.8rem] transition-colors"></i>
+                <input type="password" name="new_password" placeholder="••••••••"
+                       class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">Confirm New</label>
+              <div class="relative group">
+                <i class="fas fa-check-double absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 text-[0.8rem] transition-colors"></i>
+                <input type="password" name="confirm_password" placeholder="••••••••"
+                       class="field-input w-full pl-10 pr-4 py-3 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50/50 font-dmSans text-[0.85rem] font-bold text-slate-700">
+              </div>
+            </div>
+            <p class="text-[0.6rem] text-slate-400 italic m-0">Leave blank to maintain current password.</p>
+          </div>
+        </div>
+
+      </div><!-- /col 3 -->
+
+    </div><!-- /grid -->
+  </form>
+
+</div>
+
+<script>
+  // Profile Picture Live Preview
+  const picUpload = document.getElementById('picUpload');
+  if (picUpload) {
+    picUpload.addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.querySelector('.avatar-ring img');
+          if (img) img.src = e.target.result;
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+</script>
+
+{% endblock %}

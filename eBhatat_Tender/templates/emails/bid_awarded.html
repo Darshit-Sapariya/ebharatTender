@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBharat Tender – Bid Award Notice</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-height:1.6;}
+.outer{max-width:650px;margin:30px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05); border: 1px solid #CBD5E1;}
+.header{background:linear-gradient(135deg, #0F172A 0%, #166534 100%);padding:40px 40px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);}
+.ashoka{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 15px;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.2);}
+.header h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:1px;}
+.header p{font-size:12px;color:#86EFAC;text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.body{padding:40px;}
+.salutation{font-size:18px;font-weight:600;color:#0F172A;margin-bottom:20px;}
+.intro{font-size:15px;color:#475569;margin-bottom:30px;}
+.details-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:25px;margin-bottom:30px;}
+.section-label{font-size:12px;font-weight:700;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:15px;display:flex;align-items:center;}
+.section-label::after{content:'';flex-grow:1;height:1px;background:#E2E8F0;margin-left:15px;}
+.detail-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed #CBD5E1;}
+.detail-item:last-child{border-bottom:none;padding-bottom:0;}
+.detail-label{font-size:14px;color:#64748B;}
+.detail-value{font-size:15px;font-weight:600;color:#0F172A;}
+
+.attachment-note{background:linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);border-left:4px solid #16A34A;padding:20px 25px;border-radius:0 8px 8px 0;margin-bottom:30px;font-size:14px;color:#166534; display: flex; align-items: center; gap: 15px;}
+.attachment-icon{font-size: 24px;}
+
+.signature{font-size:15px;color:#334155;line-height:1.8;}
+.signature strong{color:#0F172A;display:block;}
+
+.footer{background:#F1F5F9;padding:30px 40px;text-align:center;border-top:1px solid #E2E8F0;}
+.contact-info{font-size:13px;color:#64748B;margin-bottom:20px;}
+.contact-info strong{color:#475569;}
+.links{margin-top:20px;}
+.links a{color:#2563EB;text-decoration:none;font-size:13px;margin:0 10px;font-weight:500;}
+</style>
+</head>
+<body>
+<div class="outer">
+  <div class="header">
+    <h1>Tender Awarded </h1>
+    <p>Official Contract Award Notice</p>
+  </div>
+
+  <div class="body">
+    <div class="salutation">Dear {{ bidder_name }},</div>
+    <div class="intro">
+      This correspondence serves as the official <strong>Cover Letter and Acknowledgement</strong> from the <b>eBharat Government Tender Portal</b>. We are extremely pleased to announce that <b>{{ company_name }}</b> has been formally <b style="color:#166534;">AWARDED</b> the contract.
+    </div>
+
+    <div class="attachment-note">
+      <div class="attachment-icon">📎</div>
+      <div>
+        <strong>Official PDF Document Attached</strong><br>
+        Please find attached to this email a comprehensive document in PDF format. This serves as your legal award confirmation notice.
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="section-label">1. Important Contract Data</div>
+      <div class="detail-item">
+        <span class="detail-label">Tender Title :</span>
+        <span class="detail-value">{{ tender_title }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Tender ID :</span>
+        <span class="detail-value">{{ tender_id }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Department :</span>
+        <span class="detail-value">{{ department }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Location :</span>
+        <span class="detail-value">{{ location }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Awarded Amount :</span>
+        <span class="detail-value" style="color: #166534; font-size: 16px;">₹ {{ bid_amount }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Award Date :</span>
+        <span class="detail-value">{{ award_date }}</span>
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="section-label">2. Winning Bidder Profile</div>
+      <div class="detail-item">
+        <span class="detail-label">Company Name :</span>
+        <span class="detail-value">{{ company_name }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">GST Number :</span>
+        <span class="detail-value">{{ gst_number }}</span>
+      </div>
+      <div class="detail-item" style="display:block;">
+        <span class="detail-label" style="display:block;margin-bottom:5px;">Registered Address :</span>
+        <span class="detail-value" style="font-size:13px;font-weight:400;">{{ address }}</span>
+      </div>
+    </div>
+
+    <div class="intro" style="font-size: 14px;">
+      The procurement officer will contact you shortly regarding the contract signing and formal project kickoff. Please ensure all your documentation is ready for final verification, as outlined in the attached PDF file.
+    </div>
+
+    <div class="signature">
+      Sincerely,
+      <strong>Regional Procurement Officer</strong>
+      eBharat Tender Portal<br>
+      <span style="font-size: 13px; color: #64748B;">Government of India</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="contact-info">
+      This System is operated by the Government of India.<br>
+      For technical queries, contact: <strong>support@ebtender.gov.in</strong>
+    </div>
+    <div class="links">
+      <a href="#">Help Centre</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px; color: #94A3B8;">
+      © 2026 Government of India. All rights reserved.
+    </div>
+  </div>
+</div>
+</body>
+</html>

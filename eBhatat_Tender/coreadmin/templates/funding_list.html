@@ -1,0 +1,106 @@
+{% extends 'coreadmin_base.html' %}
+{% load humanize %}
+
+{% block title %}Manage Funding Schemes{% endblock %}
+{% block nav_funding %}active{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'coreadmin:deshbord' %}" style="text-decoration:none;color:var(--muted);">Dashboard</a>
+<i class="fas fa-chevron-right"></i>
+<span>Manage Funding</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Mobile card table ── */
+@media (max-width: 768px) {
+  .funding-table thead { display: none; }
+  .funding-table, .funding-table tbody { display: block; }
+  .funding-table tbody tr {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--border); border-radius: 12px;
+    margin: 12px 14px; padding: 14px 12px;
+    box-shadow: 0 2px 8px rgba(15,42,94,0.05); background: #fff;
+  }
+  .funding-table tbody tr td {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 2px !important; border-bottom: 1px solid #f1f5f9; font-size: 13px !important;
+  }
+  .funding-table tbody tr td:last-child { border-bottom: none; }
+  .funding-table tbody tr td::before {
+    content: attr(data-label);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    color: #94a3b8; letter-spacing: 0.06em;
+    flex-shrink: 0; margin-right: 10px; min-width: 90px;
+  }
+  .funding-table tbody tr td:first-child { padding-bottom: 12px !important; border-bottom: 2px solid #f1f5f9; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .funding-table tbody tr td:first-child::before { display: none; }
+  .funding-table tbody tr td[colspan] { flex-direction: column; justify-content: center; align-items: center; border: none; }
+  .funding-table tbody tr td[colspan]::before { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ph">
+  <div>
+    <div class="ph-eye">Financial Administration</div>
+    <div class="ph-title">Funding Schemes</div>
+    <div class="ph-sub">Manage and distribute financial support programs available for bidders.</div>
+  </div>
+  <div class="ph-actions">
+    <a href="{% url 'coreadmin:create_funding' %}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Create New Scheme
+    </a>
+  </div>
+</div>
+
+<div class="p-6">
+
+<div class="card">
+  <div class="card-head" style="background:var(--bg3);border-bottom:2px solid var(--border2);">
+    <div class="card-title" style="color:var(--text);letter-spacing:0.05em;">All Active Funding Programs</div>
+  </div>
+  <div class="card-body" style="padding:0;overflow-x:auto;">
+    <table class="funding-table" style="width:100%;border-collapse:collapse;">
+      <thead style="background:var(--bg2);border-bottom:2px solid var(--border);">
+        <tr style="text-align:left;font-size:11px;color:var(--text);text-transform:uppercase;">
+          <th style="padding:16px 20px;width:10%;">ID</th>
+          <th style="padding:16px 20px;width:30%;">Title</th>
+          <th style="padding:16px 20px;width:15%;">Max Amount</th>
+          <th style="padding:16px 20px;width:10%;">Interest Rate</th>
+          <th style="padding:16px 20px;width:15%;">Linked Tender</th>
+          <th style="padding:16px 20px;width:10%;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in fundings %}
+        <tr style="border-bottom:1px solid var(--border);transition:background 0.2s;">
+          <td style="padding:18px 20px;font-family:monospace;font-size:13px;color:var(--text);opacity:0.6;" data-label="ID">#{{ f.id }}</td>
+          <td style="padding:18px 20px;" data-label="Title">
+            <div style="font-weight:600;font-size:14px;color:var(--text);">{{ f.title }}</div>
+            <div style="font-size:11px;color:var(--text);opacity:0.6;margin-top:4px;">Created: {{ f.created_at|date:"M d, Y" }}</div>
+          </td>
+          <td style="padding:18px 20px;font-family:monospace;font-size:15px;color:var(--green);font-weight:700;" data-label="Max Amount">₹{{ f.max_amount }}</td>
+          <td style="padding:18px 20px;font-family:monospace;font-size:14px;color:var(--accent);font-weight:600;" data-label="Interest">{{ f.interest_rate }}%</td>
+          <td style="padding:18px 20px;" data-label="Linked Tender">
+            {% if f.tender %}<span class="badge bg-blue"><i class="fas fa-link mr-1"></i> TND-{{ f.tender.id|stringformat:"04d" }}</span>
+            {% else %}<span class="badge bg-gray"><i class="fas fa-globe mr-1"></i> Global Scheme</span>{% endif %}
+          </td>
+          <td style="padding:18px 20px;" data-label="Status">
+            <span class="badge bg-green">Active</span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:60px 20px;color:var(--text);opacity:0.6;">
+            <i class="fas fa-folder-open mb-3" style="font-size:24px;"></i>
+            <div style="font-size:14px;">No funding schemes found.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+{% endblock %}

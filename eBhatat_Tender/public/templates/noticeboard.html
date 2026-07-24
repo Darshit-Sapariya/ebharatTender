@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  /* ── Only pseudo-elements & transitions Tailwind cannot handle ── */
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .anim-up   { animation: fadeInUp 0.55s cubic-bezier(0.16,1,0.3,1) both; }
+  .anim-up-2 { animation: fadeInUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.08s both; }
+
+  /* Title bar decorations */
+  .title-bar::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+  .title-bar::after {
+    content: ''; position: absolute;
+    width: 320px; height: 320px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+    right: -70px; top: -130px; pointer-events: none;
+  }
+
+  /* Notice card left border priority */
+  .border-l-urgent { border-left: 4px solid #ef4444; }
+  .border-l-high   { border-left: 4px solid #f59e0b; }
+  .border-l-normal { border-left: 4px solid #1a56db; }
+  .border-l-info   { border-left: 4px solid #10b981; }
+
+  /* Pinned card warm tint */
+  .pinned-bg { background: linear-gradient(135deg, #fffdf0 0%, #ffffff 65%); }
+
+  /* Pin flag dropper */
+  .pin-flag {
+    position: absolute; top: 0; right: 1.1rem;
+    background: #f59e0b; color: #7c2d12;
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 3px 10px 5px; border-radius: 0 0 8px 8px;
+    display: flex; align-items: center; gap: 3px;
+  }
+
+  /* Instruction list bullet */
+  .instr-li { position: relative; padding-left: 1rem; }
+  .instr-li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 6px; height: 6px; border-radius: 50%; background: #1a56db;
+  }
+
+  /* Notice card hover */
+  .notice-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+  .notice-card:hover { transform: translateY(-3px); }
+  .notice-card:hover .notice-title { color: #1a56db; }
+  .notice-title { transition: color 0.18s; }
+
+  /* Category item active/hover */
+  .cat-item { transition: background 0.15s, color 0.15s; }
+  .cat-item:hover { background: #f8faff; color: #1a56db; }
+
+  /* Attach chip hover */
+  .attach-chip { transition: background 0.18s, border-color 0.18s, color 0.18s; }
+  .attach-chip:hover { background: #dbeafe; border-color: #93c5fd; color: #1a56db; }
+
+  /* Subscribe card grid texture */
+  .sub-card::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Custom select arrow */
+  .custom-select {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.7rem center;
+  }
+
+  /* Input focus rings */
+  .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); outline: none; }
+  .subscribe-input:focus { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.12); outline: none; }
+</style>
+
+<!-- ════════════════════════════════
+     TITLE BAR
+════════════════════════════════ -->
+<div class="title-bar relative overflow-hidden"
+     style="background: linear-gradient(135deg, #09193a 0%, #0f2a5e 52%, #163472 100%);">
+
+  <div class="absolute inset-0 pointer-events-none"
+       style="background: radial-gradient(ellipse 48% 100% at 88% 50%, rgba(26,86,219,0.17) 0%, transparent 68%);"></div>
+
+  <div class="relative z-[1] max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+
+      <!-- Left -->
+      <div class="flex items-center gap-3 sm:gap-4 anim-up">
+        <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white text-[1rem] flex-shrink-0
+                    shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+             style="background: linear-gradient(135deg, #1a56db, #163472);">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div>
+          <h1 class="font-sora text-[1.15rem] sm:text-[1.35rem] font-extrabold text-white leading-tight mb-[2px]">
+            Noticeboard
+          </h1>
+          <p class="font-dmSans text-[0.74rem] sm:text-[0.78rem] text-white/45">
+            Official announcements &amp; instructions from the procurement authority
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: stat pills -->
+      <div class="flex flex-wrap items-center gap-2 anim-up-2">
+        <span class="inline-flex items-center gap-[5px] px-3 py-[4px] rounded-full
+                     font-sora text-[0.6rem] font-bold tracking-[0.06em] uppercase
+                     bg-red-500/15 border border-red-400/25 text-red-300">
+          <i class="fas fa-exclamation-circle text-[0.5rem]"></i> {{ urgent_count }} Urgent
+        </span>
+        <span class="inline-flex items-center gap-[5px] px-3 py-[4px] rounded-full
+                     font-sora text-[0.6rem] font-bold tracking-[0.06em] uppercase
+                     bg-[#1a56db]/22 border border-[#3b82f6]/28 text-white">
+          <i class="fas fa-clipboard-list text-[0.5rem]"></i> {{ total_count }} Active
+        </span>
+        <span class="inline-flex items-center gap-[5px] px-3 py-[4px] rounded-full
+                     font-sora text-[0.6rem] font-bold tracking-[0.06em] uppercase
+                     bg-emerald-500/14 border border-emerald-400/22 text-emerald-300">
+          <i class="fas fa-plus text-[0.5rem]"></i> {{ recent_notices.count }} New
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     PAGE BODY
+════════════════════════════════ -->
+<div class="bg-[#f8faff] min-h-screen">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10">
+
+    <!-- Filter bar -->
+ 
+
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_290px] gap-6 lg:gap-8 items-start">
+
+      <!-- ══ NOTICES ══ -->
+      <div>
+
+        <!-- Meta row -->
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-5">
+          <p class="font-dmSans text-[0.84rem] text-slate-500">
+            Showing <span class="font-bold text-[#0f2a5e]">{{ notices.count }}</span> notices
+          </p>
+          <p class="font-dmSans text-[0.78rem] text-slate-400 flex items-center gap-1">
+            <i class="fas fa-clock text-[0.7rem]"></i> Last updated: {% now "j M Y, H:i A" %}
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-4">
+
+          {% for notice in notices %}
+          <div class="notice-card relative bg-white border border-slate-200 rounded-2xl overflow-hidden 
+                      {% if notice.category == 'Urgent' %}border-l-urgent{% elif notice.category == 'Policy Update' %}border-l-high{% elif notice.category == 'Contract Award' %}border-l-info{% else %}border-l-normal{% endif %}
+                      {% if notice.is_pinned %}pinned-bg{% endif %}
+                      shadow-[0_2px_12px_rgba(15,42,94,0.06)]
+                      hover:border-slate-300 hover:shadow-[0_12px_36px_rgba(15,42,94,0.1)]">
+            {% if notice.is_pinned %}
+            <div class="pin-flag"><i class="fas fa-thumbtack" style="font-size:0.55rem;"></i> Pinned</div>
+            {% endif %}
+            <div class="px-5 sm:px-6 py-5">
+
+              <!-- Top row -->
+              <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  {% if notice.category == 'Urgent' %}
+                  <span class="inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-bold uppercase tracking-[0.04em] bg-red-50 text-red-700">
+                    <i class="fas fa-exclamation-circle text-[0.52rem]"></i> Urgent
+                  </span>
+                  {% elif notice.category == 'Policy Update' %}
+                  <span class="inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-semibold uppercase tracking-[0.04em] bg-purple-50 text-purple-700">
+                    <i class="fas fa-file-alt text-[0.52rem]"></i> Policy Update
+                  </span>
+                  {% elif notice.category == 'Tender Notice' %}
+                  <span class="inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-semibold uppercase tracking-[0.04em] bg-blue-50 text-blue-700">
+                    <i class="fas fa-gavel text-[0.52rem]"></i> Tender Notice
+                  </span>
+                  {% elif notice.category == 'Contract Award' %}
+                  <span class="inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-semibold uppercase tracking-[0.04em] bg-emerald-50 text-emerald-700">
+                    <i class="fas fa-check-circle text-[0.52rem]"></i> Award
+                  </span>
+                  {% else %}
+                  <span class="inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-semibold uppercase tracking-[0.04em] bg-slate-100 text-slate-500">
+                    {{ notice.category }}
+                  </span>
+                  {% endif %}
+
+                  {% if notice.created_at|date:"Y-m-d" == today_date|date:"Y-m-d" %}
+                  <span class="inline-flex items-center px-[9px] py-[3px] rounded-full font-sora text-[0.62rem] font-bold uppercase tracking-[0.04em] text-white" style="background: linear-gradient(90deg,#0f2a5e,#1a56db);">New</span>
+                  {% endif %}
+                </div>
+                <span class="font-dmSans text-[0.73rem] text-slate-400 flex items-center gap-1 flex-shrink-0">
+                  <i class="fas fa-calendar-alt text-[0.62rem]"></i> {{ notice.created_at|date:"d M Y" }}
+                </span>
+              </div>
+
+              <h3 class="notice-title font-sora text-[0.96rem] font-bold text-[#0f2a5e] leading-[1.4] mb-2">
+                {{ notice.title }}
+              </h3>
+              <div class="font-dmSans text-[0.84rem] text-slate-500 leading-[1.7] mb-4">
+                {{ notice.description|linebreaks }}
+              </div>
+
+              <!-- Footer -->
+              <div class="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-slate-100">
+                <div class="flex items-center gap-2">
+                  <div class="w-[26px] h-[26px] rounded-full flex items-center justify-center
+                              text-white text-[0.58rem] font-bold flex-shrink-0"
+                       style="background: linear-gradient(135deg,#0f2a5e,#1a56db);">
+                    {{ notice.created_by.username|slice:":2"|upper }}
+                  </div>
+                  <span class="font-dmSans text-[0.73rem] text-slate-400">
+                    Posted by <strong class="text-slate-700 font-semibold">{% if notice.created_by.get_full_name %}{{ notice.created_by.get_full_name }}{% else %}{{ notice.created_by.username }}{% endif %}</strong>
+                  </span>
+                </div>
+                <span class="font-dmSans text-[0.73rem] text-slate-400 flex items-center gap-1">
+                  <i class="fas fa-eye text-[0.62rem]"></i> {{ notice.view_count }} views
+                </span>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="bg-white border border-slate-200 rounded-2xl py-12 px-6 text-center">
+            <i class="fas fa-bullhorn text-slate-200 text-5xl mb-4"></i>
+            <h3 class="font-sora text-lg font-bold text-slate-700 mb-2">No active notices</h3>
+            <p class="font-dmSans text-slate-500">There are no announcements or instructions at this time.</p>
+          </div>
+          {% endfor %}
+
+        </div><!-- /notices -->
+
+
+        <!-- Pagination -->
+        {% if notices.has_other_pages %}
+        <div class="flex items-center justify-center gap-[6px] mt-8">
+          {% if notices.has_previous %}
+          <a href="?page={{ notices.previous_page_number }}" class="w-9 h-9 rounded-[9px] border border-slate-200 bg-white text-slate-400
+                         text-[0.7rem] flex items-center justify-center
+                         hover:border-blue-300 hover:text-[#1a56db] hover:bg-blue-50 transition-all duration-150 no-underline">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+          {% endif %}
+
+          {% for num in notices.paginator.page_range %}
+            {% if notices.number == num %}
+            <span class="w-9 h-9 rounded-[9px] font-sora text-[0.84rem] font-bold
+                           bg-[#0f2a5e] text-white border border-[#0f2a5e] flex items-center justify-center">{{ num }}</span>
+            {% elif num > notices.number|add:'-3' and num < notices.number|add:'3' %}
+            <a href="?page={{ num }}" class="w-9 h-9 rounded-[9px] border border-slate-200 bg-white text-slate-500 font-sora text-[0.84rem] font-semibold
+                           hover:border-blue-300 hover:text-[#1a56db] hover:bg-blue-50 transition-all duration-150 flex items-center justify-center no-underline">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if notices.has_next %}
+          <a href="?page={{ notices.next_page_number }}" class="w-9 h-9 rounded-[9px] border border-slate-200 bg-white text-slate-400
+                         text-[0.7rem] flex items-center justify-center
+                         hover:border-blue-300 hover:text-[#1a56db] hover:bg-blue-50 transition-all duration-150 no-underline">
+            <i class="fas fa-chevron-right"></i>
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      </div><!-- /notices col -->
+
+
+      <!-- ══ SIDEBAR ══ -->
+      <aside class="flex flex-col gap-4 lg:sticky lg:top-[calc(66px+1.25rem)]">
+
+        <!-- Categories -->
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-[0.6rem] px-4 py-[0.85rem] border-b border-slate-100">
+            <div class="w-8 h-8 rounded-[9px] bg-blue-50 flex items-center justify-center text-[#1a56db] text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Browse by Category</p>
+          </div>
+          <div class="px-3 py-3 flex flex-col gap-[2px]">
+            <a href="?" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl
+                               font-dmSans text-[0.82rem] font-semibold text-[#1a56db]
+                               bg-blue-50 no-underline">
+              All Notices
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-blue-100 text-[#1a56db]">{{ total_count }}</span>
+            </a>
+            <a href="?category=Urgent" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-exclamation-triangle text-red-500 text-[0.7rem]"></i> Urgent</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ urgent_count }}</span>
+            </a>
+            <a href="?category=Tender Notice" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-file-alt text-slate-400 text-[0.7rem]"></i> Tender Notice</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ tender_count }}</span>
+            </a>
+            <a href="?category=Policy Update" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-balance-scale text-slate-400 text-[0.7rem]"></i> Policy Update</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ policy_count }}</span>
+            </a>
+            <a href="?category=Training" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-chalkboard-teacher text-slate-400 text-[0.7rem]"></i> Training</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ training_count }}</span>
+            </a>
+            <a href="?category=System Notice" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-server text-slate-400 text-[0.7rem]"></i> System Notice</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ system_count }}</span>
+            </a>
+            <a href="?category=Contract Award" class="cat-item flex items-center justify-between px-3 py-[0.5rem] rounded-xl font-dmSans text-[0.82rem] text-slate-600 no-underline">
+              <span class="flex items-center gap-[6px]"><i class="fas fa-trophy text-slate-400 text-[0.7rem]"></i> Contract Award</span>
+              <span class="font-sora text-[0.68rem] font-bold px-[7px] py-[2px] rounded-full bg-slate-100 text-slate-400">{{ award_count }}</span>
+            </a>
+          </div>
+        </div>
+
+
+        <!-- Important Dates -->
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-[0.6rem] px-4 py-[0.85rem] border-b border-slate-100">
+            <div class="w-8 h-8 rounded-[9px] bg-amber-50 flex items-center justify-center text-amber-600 text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Important Dates</p>
+          </div>
+          <div class="px-4 py-4 flex flex-col gap-[0.55rem]">
+
+
+
+            {% for event in important_events %}
+            <div class="flex items-center gap-3 rounded-xl px-3 py-[0.6rem] border 
+                        {% if event.event_type == 'critical' %}bg-red-50 border-red-100{% elif event.event_type == 'warning' %}bg-amber-50 border-amber-100{% else %}bg-[#f8faff] border-slate-100{% endif %}">
+              <div class="w-[38px] flex-shrink-0 rounded-lg overflow-hidden text-center">
+                <div class="font-dmSans text-[0.56rem] font-bold uppercase tracking-[0.06em] py-[2px] text-white
+                            {% if event.event_type == 'critical' %}bg-red-600{% elif event.event_type == 'warning' %}bg-amber-500{% else %}bg-[#0f2a5e]{% endif %}">
+                  {{ event.event_date|date:"M" }}
+                </div>
+                <div class="bg-white border border-t-0 font-sora text-[1.05rem] font-extrabold py-[2px]
+                            {% if event.event_type == 'critical' %}border-red-200 text-red-600{% elif event.event_type == 'warning' %}border-amber-200 text-amber-600{% else %}border-slate-200 text-[#0f2a5e]{% endif %}">
+                  {{ event.event_date|date:"d" }}
+                </div>
+              </div>
+              <div>
+                <p class="font-sora text-[0.8rem] font-bold text-[#0f2a5e] leading-[1.3]">{{ event.title }}</p>
+                <p class="font-dmSans text-[0.7rem] text-slate-400 mt-px">
+                  {% if event.event_time %}{{ event.event_time }}{% else %}{{ event.event_date|date:"l" }}{% endif %}
+                  {% if event.description %} — {{ event.description }}{% endif %}
+                </p>
+              </div>
+            </div>
+            {% empty %}
+            <div class="py-4 text-center">
+              <p class="text-xs text-slate-400 italic">No upcoming events scheduled.</p>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+
+
+        <!-- Recently Added -->
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-[0.6rem] px-4 py-[0.85rem] border-b border-slate-100">
+            <div class="w-8 h-8 rounded-[9px] bg-emerald-50 flex items-center justify-center text-emerald-600 text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-clock"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Recently Added</p>
+          </div>
+          <div class="px-4 py-3 flex flex-col divide-y divide-slate-50">
+
+            {% for recent in recent_notices %}
+            <a href="#" class="flex items-start gap-[0.7rem] py-[0.7rem] no-underline group">
+              <span class="w-2 h-2 rounded-full 
+                           {% if recent.category == 'Urgent' %}bg-red-500{% elif recent.category == 'Policy Update' %}bg-amber-500{% else %}bg-[#1a56db]{% endif %} 
+                           flex-shrink-0 mt-[5px]"></span>
+              <div>
+                <p class="font-sora text-[0.79rem] font-semibold text-slate-700 group-hover:text-[#1a56db] leading-[1.4] transition-colors line-clamp-2">
+                  {{ recent.title }}
+                </p>
+                <p class="font-dmSans text-[0.7rem] text-slate-400 mt-px">{{ recent.created_at|date:"d M Y" }}</p>
+              </div>
+            </a>
+            {% empty %}
+            <p class="py-4 text-center text-slate-400 text-xs">No recent notices available.</p>
+            {% endfor %}
+
+          </div>
+        </div>
+
+
+        <!-- Subscribe -->
+        <div class="sub-card relative overflow-hidden rounded-2xl px-5 py-5
+                    shadow-[0_8px_28px_rgba(9,25,58,0.25)]"
+             style="background: linear-gradient(135deg, #0b1e4a 0%, #0f2a5e 55%, #163472 100%);">
+          <div class="relative z-[1]">
+            <p class="font-sora text-[0.92rem] font-bold text-white mb-[5px]">Get Notified</p>
+            <p class="font-dmSans text-[0.77rem] text-white/50 leading-[1.55] mb-4">
+              Subscribe to receive instant email alerts when new notices are published.
+            </p>
+            <input type="email" placeholder="Enter your email address"
+                   class="subscribe-input w-full px-[0.85rem] py-[0.58rem] mb-[0.55rem]
+                          border border-white/15 rounded-[9px] bg-white/8
+                          font-dmSans text-[0.8rem] text-white
+                          placeholder:text-white/30 transition-all duration-200">
+            <button class="w-full py-[0.58rem] rounded-[9px] font-dmSans text-[0.83rem] font-bold
+                           bg-amber-500 hover:bg-amber-400 text-amber-950
+                           transition-all duration-200 hover:-translate-y-px
+                           shadow-[0_3px_12px_rgba(245,158,11,0.35)]">
+              <i class="fas fa-bell mr-[6px]"></i> Subscribe to Notices
+            </button>
+          </div>
+        </div>
+
+      </aside><!-- /sidebar -->
+    </div>
+  </div>
+</div>
+
+{% endblock %}

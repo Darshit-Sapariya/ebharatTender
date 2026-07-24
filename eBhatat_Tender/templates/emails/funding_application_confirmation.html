@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBharat Tender – Funding Request Receipt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-height:1.6;}
+.outer{max-width:650px;margin:30px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05); border: 1px solid #CBD5E1;}
+.header{background:linear-gradient(135deg, #0F172A 0%, #1e8a54 100%);padding:40px 40px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);}
+.ashoka{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 15px;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.2);}
+.header h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:1px;}
+.header p{font-size:12px;color:#93C5FD;text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.body{padding:40px;}
+.salutation{font-size:18px;font-weight:600;color:#0F172A;margin-bottom:20px;}
+.intro{font-size:15px;color:#475569;margin-bottom:30px;}
+.details-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:25px;margin-bottom:30px;}
+.section-label{font-size:12px;font-weight:700;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:15px;display:flex;align-items:center;}
+.section-label::after{content:'';flex-grow:1;height:1px;background:#E2E8F0;margin-left:15px;}
+.detail-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed #CBD5E1;}
+.detail-item:last-child{border-bottom:none;padding-bottom:0;}
+.detail-label{font-size:14px;color:#64748B;}
+.detail-value{font-size:15px;font-weight:600;color:#0F172A;}
+.status-badge { display: inline-block; padding: 4px 10px; background-color: #fef3c7; color: #92400e; border-radius: 6px; font-weight: 700; font-size: 12px; }
+
+.attachment-note{background:linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);border-left:4px solid #3B82F6;padding:20px 25px;border-radius:0 8px 8px 0;margin-bottom:30px;font-size:14px;color:#1E3A8A; display: flex; align-items: center; gap: 15px;}
+.attachment-icon{font-size: 24px;}
+
+.signature{font-size:15px;color:#334155;line-height:1.8;}
+.signature strong{color:#0F172A;display:block;}
+
+.footer{background:#F1F5F9;padding:30px 40px;text-align:center;border-top:1px solid #E2E8F0;}
+.contact-info{font-size:13px;color:#64748B;margin-bottom:20px;}
+.contact-info strong{color:#475569;}
+.links{margin-top:20px;}
+.links a{color:#2563EB;text-decoration:none;font-size:13px;margin:0 10px;font-weight:500;}
+</style>
+</head>
+<body>
+<div class="outer">
+  <div class="header">
+  
+    <h1>Funding Request Receipt</h1>
+    <p>Financial Assistance Program</p>
+  </div>
+
+  <div class="body">
+    <div class="salutation">Dear {{ bidder_name }},</div>
+    <div class="intro">
+      Your application for financial assistance under the <strong>{{ funding_title }}</strong> scheme has been successfully received by the Ministry.
+    </div>
+
+    <div class="details-card">
+      <div class="section-label">1. Scheme Details</div>
+      <div class="detail-item">
+        <span class="detail-label">Scheme Name :</span>
+        <span class="detail-value">{{ funding_title }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Associated Tender :</span>
+        <span class="detail-value">{{ tender_title }}</span>
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="section-label">2. Application Summary</div>
+      <div class="detail-item">
+        <span class="detail-label">Amount Requested :</span>
+        <span class="detail-value" style="color: #1a56db;">₹ {{ amount_requested }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Purpose of Funding :</span>
+        <span class="detail-value">{{ purpose }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Application Status :</span>
+        <span class="detail-value"><span class="status-badge">UNDER REVIEW</span></span>
+      </div>
+    </div>
+
+    <div class="attachment-note">
+      <div class="attachment-icon">📎</div>
+      <div>
+        <strong>Official PDF Document Attached</strong><br>
+        Please find your system-generated procurement receipt attached to this email. It serves as your official proof of submission.
+      </div>
+    </div>
+
+    <div class="intro" style="font-size: 14px;">
+      Our financial committee will review your documents and revert to you shortly. You can monitor the status of this request directly from your portal dashboard.
+    </div>
+
+    <div class="signature">
+      Sincerely,
+      <strong>Financial Support Team</strong>
+      eBharat Tender Portal<br>
+      <span style="font-size: 13px; color: #64748B;">Government of India</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="contact-info">
+      This System is operated by the Government of India.<br>
+      For technical queries, contact: <strong>support@ebtender.gov.in</strong>
+    </div>
+    <div class="links">
+      <a href="#">Help Centre</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px; color: #94A3B8;">
+      © 2026 Government of India. All rights reserved.
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBharat Tender – Support Response</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-height:1.6;}
+.outer{max-width:650px;margin:30px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05);border:1px solid #CBD5E1;}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);padding:40px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);}
+.header-label{font-size:11px;color:#93C5FD;text-transform:uppercase;letter-spacing:3px;font-weight:700;margin-bottom:10px;}
+.header h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:0.5px;}
+
+/* ── Body ── */
+.body{padding:40px;}
+.salutation{font-size:18px;font-weight:700;color:#0F172A;margin-bottom:15px;}
+.intro{font-size:15px;color:#475569;margin-bottom:30px;line-height:1.75;}
+
+/* ── Reference Card ── */
+.ref-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:20px 25px;margin-bottom:25px;}
+.section-label{font-size:11px;font-weight:700;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;}
+.section-label::after{content:'';flex-grow:1;height:1px;background:#E2E8F0;margin-left:12px;}
+.ref-subject{font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px;}
+.ref-message{font-size:13px;color:#64748B;font-style:italic;line-height:1.6;}
+
+/* ── Solution Box ── */
+.solution-box{background:linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);border-left:4px solid #1E3A8A;padding:25px;border-radius:0 8px 8px 0;margin-bottom:25px;}
+.solution-label{font-size:11px;font-weight:700;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;display:block;}
+.solution-text{font-size:15px;color:#1E293B;line-height:1.8;font-weight:500;}
+
+/* ── CTA Button ── */
+.cta-wrap{text-align:center;margin:30px 0;}
+.cta-btn{display:inline-block;padding:14px 36px;background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);color:#ffffff;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;letter-spacing:0.3px;}
+
+/* ── Signature ── */
+.signature{font-size:15px;color:#334155;line-height:1.8;margin-top:30px;}
+.signature strong{color:#0F172A;display:block;margin-bottom:2px;}
+
+/* ── Footer ── */
+.footer{background:#F1F5F9;padding:30px 40px;text-align:center;border-top:1px solid #E2E8F0;}
+.contact-info{font-size:13px;color:#64748B;margin-bottom:15px;}
+.contact-info strong{color:#475569;}
+.links{margin-top:15px;}
+.links a{color:#2563EB;text-decoration:none;font-size:13px;margin:0 10px;font-weight:500;}
+.copyright{margin-top:15px;font-size:12px;color:#94A3B8;}
+</style>
+</head>
+<body>
+<div class="outer">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-label">Official Support Response</div>
+    <h1>eBharat Tender Portal</h1>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <div class="salutation">Dear {{ full_name }},</div>
+    <div class="intro">
+      Thank you for contacting the <strong>eBharat Government Tender Portal</strong> support team. 
+      We have reviewed your enquiry and our administrative team has prepared an official response below.
+    </div>
+
+    <!-- Original Query Reference -->
+    <div class="ref-card">
+      <div class="section-label">Your Original Enquiry</div>
+      <div class="ref-subject">{{ original_subject }}</div>
+      <div class="ref-message">"{{ original_message }}"</div>
+    </div>
+
+    <!-- Official Solution -->
+    <div class="solution-box">
+      <span class="solution-label">Official Response &amp; Solution</span>
+      <div class="solution-text">{{ reply_message|linebreaks }}</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <a href="{{ domain|default:'http://127.0.0.1:8000' }}/contact/" class="cta-btn">
+        Submit a Follow-up Enquiry
+      </a>
+    </div>
+
+    <div class="intro" style="font-size:14px;margin-bottom:0;">
+      If you require further clarification or have additional queries, please do not hesitate to contact us again via our helpdesk portal.
+    </div>
+
+    <!-- Signature -->
+    <div class="signature">
+      <br>Sincerely,
+      <strong>eBharat Support & Administration Team</strong>
+      eBharat Tender Portal<br>
+      <span style="font-size:13px;color:#64748B;">Government of India</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="contact-info">
+      This system is operated by the Government of India.<br>
+      For technical queries, contact: <strong>support@ebtender.gov.in</strong>
+    </div>
+    <div class="links">
+      <a href="{{ domain|default:'http://127.0.0.1:8000' }}/contact/">Help Centre</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms &amp; Conditions</a>
+    </div>
+    <div class="copyright">
+      &copy; 2026 Government of India. All rights reserved.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBharat Tender – Welcome Email</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-height:1.6;}
+.outer{max-width:650px;margin:30px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05); border: 1px solid #CBD5E1;}
+.header{background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);padding:40px 40px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);}
+.ashoka{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 15px;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.2);}
+.header h1{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#ffffff;margin-bottom:5px;letter-spacing:-0.5px;}
+.header p{font-size:13px;color:#93C5FD;text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.body{padding:40px;}
+.salutation{font-size:18px;font-weight:600;color:#0F172A;margin-bottom:20px;}
+.intro{font-size:16px;color:#475569;margin-bottom:30px;}
+.details-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:25px;margin-bottom:30px;}
+.section-label{font-size:12px;font-weight:700;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:15px;display:flex;align-items:center;}
+.section-label::after{content:'';flex-grow:1;height:1px;background:#E2E8F0;margin-left:15px;}
+.detail-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed #CBD5E1;}
+.detail-item:last-child{border-bottom:none;padding-bottom:0;}
+.detail-label{font-size:14px;color:#64748B;}
+.detail-value{font-size:15px;font-weight:600;color:#0F172A;}
+.action-box{background:linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);border-left:4px solid #3B82F6;padding:25px;border-radius:0 8px 8px 0;margin-bottom:35px;}
+.action-box p{font-size:15px;color:#1E3A8A;margin-bottom:20px;}
+.cta-btn{display:inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color:#ffffff; text-decoration:none; font-family: 'Sora', sans-serif; font-weight:700; padding:16px 40px; border-radius:50px; font-size:14px; transition: all 0.3s ease; box-shadow:0 10px 15px -3px rgba(30, 58, 138, 0.25); border: none; text-transform: uppercase; letter-spacing: 1px;}
+.cta-btn:hover{background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); transform: translateY(-2px); box-shadow:0 20px 25px -5px rgba(30, 58, 138, 0.35);}
+.footer{background:#F1F5F9;padding:30px 40px;text-align:center;border-top:1px solid #E2E8F0;}
+.contact-info{font-size:13px;color:#64748B;margin-bottom:20px;}
+.contact-info strong{color:#475569;}
+.signature{font-size:15px;color:#334155;line-height:1.8;}
+.signature strong{color:#0F172A;display:block;}
+.links{margin-top:20px;}
+.links a{color:#2563EB;text-decoration:none;font-size:13px;margin:0 10px;font-weight:500;}
+</style>
+</head>
+<body>
+<div class="outer">
+  <div class="header">
+
+    <h1>eBharat Tender</h1>
+    <p>Official e-Procurement Portal</p>
+  </div>
+
+  <div class="body">
+    <div class="salutation">Dear {{ full_name }},</div>
+    <div class="intro">
+      Welcome to the <strong>eBharat Government e-Procurement Portal</strong>. Your registration has been received and your account has been successfully provisioned. We are delighted to have you onboard.
+    </div>
+
+    <div class="details-card">
+      <div class="section-label">Account Credentials</div>
+      <div class="detail-item">
+        <span class="detail-label">Username : </span>
+        <span class="detail-value"> {{ username }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Registered Email : </span>
+        <span class="detail-value"> {{ email }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Portal Status : </span>
+        <span class="detail-value" style="color:#D97706;">Incomplete Profile</span>
+      </div>
+    </div>
+
+    <div class="action-box">
+      <p>Access to system features depends on your requested role (Tender Creator or Bidder). Please complete your business profile with all required details and documentation. Your account will be activated after admin approval.</p>
+      {% if domain %}
+      <a href="http://{{ domain }}{% url 'accounts:complete_profile' %}" class="cta-btn">Complete Your Profile Now</a>
+      {% else %}
+      <a href="http://127.0.0.1:8000{% url 'accounts:complete_profile' %}" class="cta-btn">Complete Your Profile Now</a>
+      {% endif %}
+    </div>
+
+    <div class="signature">
+      Sincerely,
+      <strong>System Administrator</strong>
+      eBharat Tender Portal<br>
+      <span style="font-size: 13px; color: #64748B;">Government of India</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="contact-info">
+      Need assistance? Contact our Helpdesk at <strong>support@ebtender.gov.in</strong><br>
+      or call <strong>1800-XXX-XXXX</strong> (Mon–Fri, 9:00 AM – 6:00 PM IST).
+    </div>
+    <div class="links">
+      <a href="#">Help Centre</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px; color: #94A3B8;">
+      © 2026 Government of India. All rights reserved.
+    </div>
+  </div>
+</div>
+</body>
+</html>

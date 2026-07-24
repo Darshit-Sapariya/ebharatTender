@@ -1,0 +1,350 @@
+{% extends 'coreadmin_base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Dashboard page header mobile ── */
+  @media (max-width: 640px) {
+    .dash-ph { flex-direction: column !important; gap: 14px !important; }
+    .dash-ph .ph-actions { width: 100% !important; }
+    .dash-ph .ph-actions .btn { width: 100%; justify-content: center; }
+  }
+
+  /* ── Bottom 2-col grid ── */
+  .dash-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 0 20px 24px;
+    margin-top: 4px;
+  }
+  @media (max-width: 900px) {
+    .dash-bottom { grid-template-columns: 1fr; }
+  }
+
+  /* ── Pending approval rows ── */
+  .apv-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s;
+  }
+  .apv-row:last-child { border-bottom: none; padding-bottom: 16px; }
+  .apv-row:first-child { padding-top: 16px; }
+  .apv-row:hover { background: #fafbff; }
+
+  /* ── Activity timeline rows ── */
+  .tli {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s;
+  }
+  .tli:last-child { border-bottom: none; padding-bottom: 16px; }
+  .tli:first-child { padding-top: 16px; }
+  .tli:hover { background: #fafbff; }
+
+  /* ── Card head / body ── */
+  .dash-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    background: #fafbff;
+  }
+  .dash-card-body { padding: 4px 0 4px; }
+
+  /* ── Empty states ── */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 20px; gap: 8px;
+    color: #94a3b8;
+  }
+  .empty-state i { font-size: 1.5rem; margin-bottom: 4px; }
+  .empty-state p { font-size: 0.78rem; text-align: center; margin: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ── -->
+<div class="ph dash-ph" style="display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div class="ph-eye">Overview · FY 2025–26</div>
+    <div class="ph-title">Dashboard</div>
+    <div class="ph-sub">Gujarat State Procurement — real-time control panel</div>
+  </div>
+  <div class="ph-actions" style="display:flex;gap:10px;">
+    <button class="btn btn-outline btn-sm" onclick="showToast('Generating PDF report…','info')">
+      <i class="fas fa-download"></i> Export
+    </button>
+  </div>
+</div>
+
+<div style="padding: 20px;">
+
+  <!-- ── Stats Grid: 3 columns on desktop, 2 on tablet, 1 on mobile ── -->
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+
+    <!-- 1. Total Tenders -->
+    <a href="{% url 'coreadmin:tender_list' %}" class="block group" style="text-decoration:none;">
+      <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-indigo-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+        <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-indigo-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+        <div class="relative z-10 flex items-start justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm flex items-center gap-1
+            {% if tenders_delta > 0 %} bg-green-50 text-green-700 border border-green-200
+            {% elif tenders_delta < 0 %} bg-red-50 text-red-700 border border-red-200
+            {% else %} bg-slate-50 text-slate-600 border border-slate-200 {% endif %}">
+            {% if tenders_delta > 0 %}<i class="fas fa-arrow-up text-[7px]"></i>{% elif tenders_delta < 0 %}<i class="fas fa-arrow-down text-[7px]"></i>{% endif %} {{ tenders_delta_abs }}%
+          </div>
+        </div>
+        <div class="relative z-10">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Tenders</div>
+          <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">{{ total_tenders|default:"0" }}</div>
+          <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>{{ active_tenders }} active
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 2. Total Disbursed -->
+    <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-emerald-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-emerald-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+      <div class="relative z-10 flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+          <i class="fas fa-indian-rupee-sign"></i>
+        </div>
+        <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm bg-slate-50 text-slate-600 border border-slate-200">
+          <i class="fas fa-chart-line text-[8px] mr-0.5"></i> {{ disbursed_delta_abs }}%
+        </div>
+      </div>
+      <div class="relative z-10">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Disbursed</div>
+        <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">₹{{ total_awarded_val|default:"0"|intcomma }}</div>
+        <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+          <i class="fas fa-calendar-check text-[9px] text-emerald-400"></i> FY 25–26 cumulative
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Pending Reviews -->
+    <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-orange-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-amber-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+      <div class="relative z-10 flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm bg-slate-50 text-slate-600 border border-slate-200">{{ pending_delta_abs }}%</div>
+      </div>
+      <div class="relative z-10">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pending Reviews</div>
+        <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">{{ total_pending|default:"0" }}</div>
+        <div class="text-[11px] font-medium text-amber-600 flex items-center gap-1">
+          <i class="fas fa-triangle-exclamation text-[9px]"></i> Requires action
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Registered Vendors -->
+    <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-blue-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-blue-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+      <div class="relative z-10 flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm bg-slate-50 text-slate-600 border border-slate-200">{{ vendors_delta_abs }}%</div>
+      </div>
+      <div class="relative z-10">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Reg. Vendors</div>
+        <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">{{ total_vendors|default:"0"|intcomma }}</div>
+        <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+          <i class="fas fa-user-clock text-[9px] text-blue-400"></i> {{ pending_user_approvals }} awaiting
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. EMD Escrow -->
+    <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-rose-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-rose-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+      <div class="relative z-10 flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm bg-slate-50 text-slate-600 border border-slate-200">{{ emd_delta_abs }}%</div>
+      </div>
+      <div class="relative z-10">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">EMD Escrow</div>
+        <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">₹{{ emd_escrow|default:"0"|intcomma }}</div>
+        <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+          <i class="fas fa-shield-halved text-[9px] text-rose-400"></i> {{ active_holds }} active holds
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Approval Rate -->
+    <div class="relative overflow-hidden bg-white border border-slate-200 border-b-[4px] border-b-emerald-400 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-emerald-50/70 group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+      <div class="relative z-10 flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 text-white flex items-center justify-center text-[15px] shadow-md group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+          <i class="fas fa-check-double"></i>
+        </div>
+        <div class="text-[9.5px] font-bold px-2 py-1 rounded-lg shadow-sm bg-slate-50 text-slate-600 border border-slate-200">{{ approval_delta_abs }}%</div>
+      </div>
+      <div class="relative z-10">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Approval Rate</div>
+        <div class="text-[1.6rem] font-sora font-extrabold text-slate-800 tracking-tight leading-none mb-1">{{ approval_rate|default:"0" }}%</div>
+        <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+          <i class="fas fa-chart-area text-[9px] text-emerald-400"></i> 30-day average
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- END Stats Grid -->
+
+  <!-- ── Bottom 2-col: Pending Approvals + Activity Feed ── -->
+  <div class="dash-bottom">
+
+    <!-- Pending Approvals Card -->
+    <div class="card" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(15,42,94,0.05);">
+      <div class="dash-card-head">
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;">Pending Approvals</div>
+          <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Requires your action</div>
+        </div>
+        <span class="badge bg-red" style="font-size:0.65rem;padding:4px 10px;">
+          <i class="fas fa-circle" style="font-size:5px;margin-right:4px;"></i>
+          {{ combined_pending|length }} pending
+        </span>
+      </div>
+      <div class="dash-card-body">
+        {% for item in combined_pending|slice:":6" %}
+        <div class="apv-row">
+
+          {% if item.type == 'user' %}
+            <div class="uav" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:white;flex-shrink:0;">
+              {{ item.obj.user.username|make_list|first|upper }}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div class="uname" style="font-size:0.8rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.obj.company_name|default:item.obj.user.username }}</div>
+              <div class="usub" style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">Profile Approval · Vendor</div>
+            </div>
+            <a href="{% url 'coreadmin:user_approvals' %}" class="btn btn-outline btn-xs" style="flex-shrink:0;">Review</a>
+
+          {% elif item.type == 'bid' %}
+            <div class="uav" style="background:linear-gradient(135deg,#3b82f6,#0ea5e9);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:white;flex-shrink:0;">B</div>
+            <div style="flex:1;min-width:0;">
+              <div class="uname" style="font-size:0.8rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.obj.company_name }}</div>
+              <div class="usub" style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">Bid Approval · TND-{{ item.obj.tender.id|stringformat:"04d" }}</div>
+            </div>
+            <a href="{% url 'coreadmin:application_approvals' %}" class="btn btn-outline btn-xs" style="flex-shrink:0;">Review</a>
+
+          {% elif item.type == 'funding' %}
+            <div class="uav" style="background:linear-gradient(135deg,#10b981,#059669);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:white;flex-shrink:0;">F</div>
+            <div style="flex:1;min-width:0;">
+              <div class="uname" style="font-size:0.8rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.obj.bidder.username }}</div>
+              <div class="usub" style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">Funding · ₹{{ item.obj.amount_requested|intcomma }}</div>
+            </div>
+            <a href="{% url 'coreadmin:funding_approvals' %}" class="btn btn-outline btn-xs" style="flex-shrink:0;">Review</a>
+
+          {% elif item.type == 'admin_req' %}
+            <div class="uav" style="background:linear-gradient(135deg,#f59e0b,#ef4444);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:white;flex-shrink:0;">
+              {{ item.obj.department_name|make_list|first|upper }}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div class="uname" style="font-size:0.8rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.obj.user.username }}</div>
+              <div class="usub" style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">Request · {{ item.obj.department_name }}</div>
+            </div>
+            <a href="{% url 'coreadmin:admin_request_approvals' %}" class="btn btn-outline btn-xs" style="flex-shrink:0;">Review</a>
+          {% endif %}
+
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-circle-check" style="color:#a7f3d0;"></i>
+          <p>No pending approvals at the moment.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Activity Feed Card -->
+    <div class="card" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(15,42,94,0.05);">
+      <div class="dash-card-head">
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;">Activity Feed</div>
+          <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Audit trail · latest actions</div>
+        </div>
+        <span class="badge bg-indigo" style="font-size:0.65rem;padding:4px 10px;background:rgba(99,102,241,0.1);color:#6366f1;border:1px solid rgba(99,102,241,0.2);">
+          <i class="fas fa-rss" style="font-size:8px;margin-right:4px;"></i> Live
+        </span>
+      </div>
+      <div class="dash-card-body">
+        {% for log in recent_activity %}
+        <div class="tli">
+          {% if 'APPROVAL' in log.action_type %}
+            <div class="tl-icon" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;margin-top:1px;background:#ecfdf5;color:#10b981;">
+              <i class="fas fa-check"></i>
+            </div>
+          {% elif 'REJECTION' in log.action_type %}
+            <div class="tl-icon" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;margin-top:1px;background:#fef2f2;color:#ef4444;">
+              <i class="fas fa-xmark"></i>
+            </div>
+          {% else %}
+            <div class="tl-icon" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;margin-top:1px;background:rgba(99,102,241,0.1);color:#6366f1;">
+              <i class="fas fa-info"></i>
+            </div>
+          {% endif %}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.78rem;font-weight:500;color:#334155;line-height:1.35;">{{ log.description|truncatechars:55 }}</div>
+            <div style="font-size:0.64rem;color:#94a3b8;margin-top:3px;display:flex;align-items:center;gap:4px;">
+              <i class="fas fa-user-circle" style="font-size:9px;"></i>
+              <span>{{ log.admin_user.username }}</span>
+              <span style="opacity:0.4;">·</span>
+              <span>{{ log.timestamp|timesince }} ago</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-clock-rotate-left"></i>
+          <p>No recent activity to display.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+  <!-- END Bottom Grid -->
+
+</div>
+<!-- END main padding wrapper -->
+
+<style>
+  /* Stats grid responsive */
+  @media (max-width: 1024px) {
+    div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+  @media (max-width: 480px) {
+    div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+</style>
+
+{% endblock %}

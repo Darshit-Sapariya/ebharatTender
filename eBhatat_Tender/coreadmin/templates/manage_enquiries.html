@@ -1,0 +1,203 @@
+{% extends 'coreadmin_base.html' %}
+{% load static %}
+
+{% block title %}Enquiries & Support{% endblock %}
+{% block nav_enquiries %}active{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'coreadmin:deshbord' %}">Dashboard</a>
+<i class="fas fa-chevron-right"></i>
+<span>Enquiries</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Status Badges ── */
+.status-pending { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+.status-replied { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+
+/* ── Enquiry Row ── */
+.enq-row { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.12s; }
+.enq-row:last-child { border-bottom: none; }
+.enq-row:hover { background: #fafbff; }
+.enq-row.has-reply { border-left: 3px solid var(--green); }
+.enq-row.no-reply  { border-left: 3px solid var(--red); }
+
+/* ── Avatar ── */
+.enq-avatar { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.72rem; font-weight: 800; flex-shrink: 0; }
+
+/* ── Reply Box in Row ── */
+.admin-reply-preview { margin-top: 10px; padding: 10px 14px; background: var(--green-bg); border: 1px solid var(--green-b); border-radius: 8px; font-size: 0.74rem; color: #166534; line-height: 1.5; position: relative; }
+.admin-reply-preview::before { content: 'ADMIN REPLY'; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.05em; color: var(--green); display: block; margin-bottom: 4px; }
+
+/* ── Modal ── */
+.modal-backdrop { position: fixed; inset: 0; z-index: 999; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; animation: bFadeIn 0.2s ease-out; }
+@keyframes bFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-box { background: white; width: 95%; max-width: 580px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.18); overflow: hidden; animation: mSlide 0.25s cubic-bezier(0.16,1,0.3,1); }
+@keyframes mSlide { from { transform: translateY(16px); opacity: 0.6; } to { transform: translateY(0); opacity: 1; } }
+
+/* ── Modal form ── */
+.modal-body textarea { width: 100%; min-height: 190px; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text); resize: none; background: var(--surface); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.modal-body textarea:focus { border-color: #6366f1; background: white; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="ph">
+  <div>
+    <div class="ph-eye">Support Inbox</div>
+    <div class="ph-title">Public Enquiries</div>
+    <div class="ph-sub">Manage visitor submissions from the Contact Us page and send direct email solutions.</div>
+  </div>
+  <div class="ph-actions">
+    <span class="badge bg-indigo">{{ enquiries.count }} Total</span>
+  </div>
+</div>
+
+<!-- Enquiry list -->
+<div class="p-4 lg:p-5">
+  <div class="card overflow-hidden">
+    <div class="ch">
+      <div class="ct">Enquiry Inbox</div>
+      <div class="flex items-center gap-2 bg-black px-3 py-1 rounded-full">
+        <span class="badge bg-gray border-none text-[0.65rem]">{{ enquiries.count }} submissions</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      {% for enq in enquiries %}
+      <div class="enq-row {% if enq.status == 'replied' %}has-reply{% else %}no-reply{% endif %}">
+
+        <!-- Avatar -->
+        <div class="enq-avatar">{{ enq.full_name|slice:":2"|upper }}</div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          
+          <!-- Top meta row -->
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="font-sora font-bold text-[0.84rem] text-[#1e293b]">{{ enq.full_name }}</span>
+            <span class="font-dmSans text-[0.72rem] text-[#94a3b8]">{{ enq.email }}</span>
+            <span class="badge {% if enq.status == 'pending' %}status-pending{% else %}status-replied{% endif %}">
+              {% if enq.status == 'pending' %}<i class="fas fa-clock text-[0.55rem]"></i>{% else %}<i class="fas fa-check-circle text-[0.55rem]"></i>{% endif %}
+              {{ enq.status|capfirst }}
+            </span>
+            <span class="font-dmSans text-[0.7rem] text-[#94a3b8] ml-auto">{{ enq.created_at|date:"d M Y, H:i" }}</span>
+          </div>
+
+          <!-- Subject -->
+          <div class="font-sora font-semibold text-[0.8rem] text-[#334155] mb-1">{{ enq.subject }}</div>
+
+          <!-- Message preview -->
+          <div class="font-dmSans text-[0.78rem] text-[#64748b] leading-relaxed italic truncate max-w-2xl">
+            "{{ enq.message }}"
+          </div>
+
+          <!-- Admin reply preview if exists -->
+          {% if enq.admin_reply %}
+          <div class="admin-reply-preview">{{ enq.admin_reply }}</div>
+          {% endif %}
+
+        </div>
+
+        <!-- Action -->
+        <div class="flex-shrink-0 ml-2">
+          <button class="btn {% if enq.status == 'pending' %}btn-primary{% else %}btn-outline{% endif %} btn-sm"
+                  onclick="openModal('{{ enq.id }}', '{{ enq.full_name|escapejs }}', '{{ enq.email|escapejs }}', '{{ enq.subject|escapejs }}', '{{ enq.message|escapejs }}')">
+            <i class="fas fa-reply text-[0.7rem]"></i>
+            {% if enq.status == 'pending' %}Reply{% else %}Re-reply{% endif %}
+          </button>
+        </div>
+
+      </div>
+      {% empty %}
+      <div class="empty-state py-16">
+        <i class="fas fa-inbox-in text-4xl text-slate-200 mb-3"></i>
+        <p class="font-sora font-bold text-sm text-[#94a3b8]">Inbox is empty</p>
+        <p class="text-xs text-[#94a3b8]">No enquiries received yet from the portal.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════ REPLY MODAL ════════ -->
+<div id="replyBackdrop" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal-box">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[#f1f5f9] bg-[#fafbff]">
+      <div>
+        <span class="ph-eye mb-1">Compose Reply</span>
+        <h3 class="font-sora font-bold text-sm text-[#1e293b]" id="modalHeading">Reply to Enquiry</h3>
+      </div>
+      <button class="btn-icon btn btn-outline btn-sm" onclick="closeModal()">
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Reference block -->
+    <div class="px-6 pt-5">
+      <div class="p-4 rounded-xl bg-[#f8faff] border border-[#e2e8f0] mb-5">
+        <div class="font-sora text-[0.65rem] font-bold text-[#94a3b8] uppercase tracking-wider mb-2">Original Enquiry</div>
+        <div class="font-sora text-[0.78rem] font-semibold text-[#1e293b] mb-1" id="mSubject"></div>
+        <div class="font-dmSans text-[0.76rem] text-[#64748b] italic leading-relaxed" id="mMessage"></div>
+      </div>
+    </div>
+
+    <!-- Reply form -->
+    <div class="modal-body px-6 pb-6">
+      <form id="replyForm" method="POST">
+        {% csrf_token %}
+        <label class="block font-sora text-[0.7rem] font-bold text-[#64748b] uppercase tracking-wider mb-2">
+          Your Official Response
+        </label>
+        <textarea name="reply_message" id="replyText"
+                  placeholder="Type your official response here. Be clear and concise..."></textarea>
+
+        <div class="flex justify-end gap-3 mt-4">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal()">Discard</button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fas fa-paper-plane text-[0.7rem]"></i> Send Email Solution
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function openModal(id, name, email, subject, message) {
+  document.getElementById('modalHeading').textContent = `Reply to ${name} · ${email}`;
+  document.getElementById('mSubject').textContent = subject;
+  document.getElementById('mMessage').textContent = `"${message}"`;
+  document.getElementById('replyForm').action = `/coreadmin/enquiries/reply/${id}/`;
+  document.getElementById('replyText').value = '';
+  document.getElementById('replyBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('replyBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('replyBackdrop')) closeModal();
+}
+
+// Show loader on form submission
+document.getElementById('replyForm').addEventListener('submit', function() {
+  showSystemLoader();
+  // Optional: Disable the button to prevent multiple submissions
+  const btn = this.querySelector('button[type="submit"]');
+  if(btn) btn.disabled = true;
+});
+</script>
+
+{% endblock %}

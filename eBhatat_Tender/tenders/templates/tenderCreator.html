@@ -1,0 +1,490 @@
+{% extends "base1.html" %}
+{% block content %}
+
+<style>
+  /* Pseudo-elements Tailwind cannot handle */
+  .tc-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none;
+  }
+  .tc-header::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    right: -20px; top: -30px; pointer-events: none;
+  }
+  @media (min-width: 640px) {
+    .tc-header::after { width: 220px; height: 220px; right: -50px; top: -70px; }
+  }
+  .form-panel:focus-within { box-shadow: 0 4px 20px rgba(26,86,219,0.1); border-color: #bfdbfe; }
+  .select-wrap::after {
+    content: '\f078'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+    font-size: 0.6rem; color: #64748b;
+    position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); pointer-events: none;
+  }
+  .input-icon-wrap .input-icon {
+    position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+    color: #64748b; font-size: 0.78rem; pointer-events: none;
+  }
+  .currency-prefix {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 700;
+    color: #64748b; background: #f1f5f9;
+    border: 1.5px solid #e2e8f0; border-right: none;
+    border-radius: 10px 0 0 10px; pointer-events: none;
+  }
+  .currency-wrap .field-input { padding-left: 2.6rem; border-radius: 0 10px 10px 0; }
+  .field-input:focus, .field-select:focus, .field-textarea:focus {
+    border-color: #ea580c; background: white;
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.1); outline: none;
+  }
+  .field-input::placeholder, .field-textarea::placeholder { color: #b0bec5; font-size: 0.82rem; }
+  .file-zone:hover, .file-zone:focus-within { border-color: #ea580c; background: #f0f5ff; }
+  .ph-indigo  .panel-head { border-left: 3px solid #ea580c; }
+  .ph-green .panel-head { border-left: 3px solid #10b981; }
+  .ph-amber .panel-head { border-left: 3px solid #f59e0b; }
+  .ph-teal  .panel-head { border-left: 3px solid #0d9488; }
+  .ph-red   .panel-head { border-left: 3px solid #ef4444; }
+  .step-dot.active { background: #ea580c; color: white; box-shadow: 0 0 0 4px #bfdbfe; }
+  .step-dot.done   { background: #10b981; color: white; }
+  .step-dot.pending { background: #f1f5f9; color: #64748b; border: 1.5px solid #e2e8f0; }
+  .step-connector.done { background: #10b981; }
+</style>
+
+
+<div class="p-4 sm:p-7 flex flex-col gap-4 sm:gap-6">
+
+  <!-- ══════ HEADER ══════ -->
+  <div class="tc-header relative rounded-2xl overflow-hidden flex items-center justify-between gap-4 px-6 sm:px-8 py-4 sm:py-6"
+       style="background: linear-gradient(135deg, #7580f7 0%, #7275c3 50%, #5e58c1 100%);">
+    <div class="relative z-[1]">
+      <p class="text-[0.62rem] sm:text-[0.7rem] font-semibold tracking-[0.1em] uppercase text-white/40 mb-1">Official Procurement Publication</p>
+      <h1 class="font-sora text-[1.15rem] sm:text-[1.35rem] font-extrabold text-white leading-tight mb-[0.2rem]">Create New Tender</h1>
+      <p class="text-[0.72rem] sm:text-[0.8rem] text-white/48 hidden sm:block">Fill in all required fields to publish a procurement notice</p>
+    </div>
+    <a href="{% url 'tenders:mytenders' %}"
+       class="relative z-[1] inline-flex items-center gap-[0.4rem] px-4 py-2
+              bg-white/12 border-[1.5px] border-white/22 rounded-[10px]
+              text-white/85 font-sora text-[0.8rem] font-semibold no-underline flex-shrink-0
+              backdrop-blur-[6px] transition-all duration-200
+              hover:bg-white/20 hover:text-white hover:border-white/38">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <!-- ══════ SELECTION MODE (IF NO REQUEST ACTIVE) ══════ -->
+  {% if not active_request %}
+  <div class="flex flex-col gap-6 animate-fadeIn">
+    <!-- Help Card -->
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 flex items-start gap-5">
+      <div class="w-12 h-12 rounded-xl bg-indigo-500 text-white flex items-center justify-center text-xl flex-shrink-0 shadow-lg shadow-indigo-200">
+        <i class="fas fa-clipboard-check"></i>
+      </div>
+      <div>
+        <h4 class="font-sora text-[1rem] font-bold text-indigo-900 mb-1">Select an Approved Request</h4>
+        <p class="text-[0.85rem] text-indigo-800/70 leading-relaxed max-w-2xl">
+          To maintain transparency and compliance, every tender publication must be linked to an approved administrative request. 
+          Choose an approved request from the list below to proceed with publication.
+        </p>
+      </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)]">
+      <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <h3 class="font-sora text-[0.95rem] font-bold text-slate-700">Approved Publication Requests</h3>
+        <a href="{% url 'tenders:request_admin' %}" 
+           class="text-[0.75rem] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 transition-all">
+          <i class="fas fa-plus-circle"></i> Create New Request
+        </a>
+      </div>
+      <!-- Desktop Table View (Visible on Large screens) -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full text-left border-collapse table-fixed">
+          <thead>
+            <tr class="bg-slate-50/80">
+              <th class="w-[45%] px-6 py-4 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">Tender Title</th>
+              <th class="w-[20%] px-6 py-4 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">Department</th>
+              <th class="w-[20%] px-6 py-4 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">Category</th>
+              <th class="w-[15%] px-6 py-4 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for req in pending_publish_requests %}
+            <tr class="hover:bg-slate-50/50 transition-colors group">
+              <td class="px-6 py-5">
+                <div class="font-bold text-slate-800 text-[0.9rem] group-hover:text-indigo-600 transition-colors break-words leading-snug">{{ req.tender_title }}</div>
+                <div class="text-[0.72rem] text-slate-400 mt-0.5">Approved on {{ req.created_at|date:"M d, Y" }}</div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[0.72rem] font-bold border border-slate-200 truncate max-w-full" title="{{ req.department_name }}">{{ req.department_name }}</span>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-block px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[0.72rem] font-bold border border-indigo-100 truncate max-w-full" title="{{ req.category_name }}">{{ req.category_name }}</span>
+              </td>
+              <td class="px-6 py-5 text-right">
+                <a href="{% url 'tenders:tenderCreator' %}?request_id={{ req.id }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-sora font-bold text-[0.72rem] rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all whitespace-nowrap">
+                  <i class="fas fa-paper-plane text-[0.65rem]"></i>
+                  <span>Publish</span>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="px-6 py-16">
+                <div class="flex flex-col items-center justify-center text-center max-w-xs mx-auto">
+                  <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-2xl mb-4">
+                    <i class="fas fa-folder-open"></i>
+                  </div>
+                  <h5 class="text-slate-700 font-bold text-[0.95rem] mb-2">No Approved Requests</h5>
+                  <p class="text-slate-400 text-[0.82rem]">You need an approved request before you can publish.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile/Tablet Card View (Visible below lg) -->
+      <div class="lg:hidden divide-y divide-slate-100">
+        {% for req in pending_publish_requests %}
+        <div class="p-5 flex flex-col gap-4 hover:bg-slate-50 transition-colors">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+                <h4 class="font-sora text-[1rem] font-extrabold text-slate-800 leading-tight mb-1">{{ req.tender_title }}</h4>
+                <p class="text-[0.7rem] text-slate-400">Approved: {{ req.created_at|date:"M d, Y" }}</p>
+            </div>
+            <a href="{% url 'tenders:tenderCreator' %}?request_id={{ req.id }}" 
+               class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-100 flex-shrink-0">
+                <i class="fas fa-paper-plane text-[0.85rem]"></i>
+            </a>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[0.65rem] font-bold border border-slate-200 uppercase">{{ req.department_name }}</span>
+            <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[0.65rem] font-bold border border-indigo-100 uppercase">{{ req.category_name }}</span>
+          </div>
+          
+          <a href="{% url 'tenders:tenderCreator' %}?request_id={{ req.id }}" 
+             class="w-full flex items-center justify-center gap-2 py-3.5 bg-indigo-600 text-white font-sora font-extrabold text-[0.85rem] rounded-2xl shadow-lg shadow-indigo-100">
+            Publish Now
+          </a>
+        </div>
+        {% empty %}
+        <div class="px-6 py-16 text-center">
+            <i class="fas fa-folder-open text-slate-200 text-[3rem] mb-4"></i>
+            <p class="text-slate-400 font-bold">No approved requests found.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- ══════ FORM MODE (IF REQUEST SELECTED) ══════ -->
+
+  <!-- Selection Indicator -->
+  <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 mb-2 flex items-center justify-between animate-slideDown">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-lg flex-shrink-0">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div>
+        <h4 class="font-sora text-[0.92rem] font-bold text-emerald-900 leading-tight">Request Active: {{ active_request.tender_title }}</h4>
+        <p class="text-[0.78rem] text-emerald-800/70 mt-0.5">Title, Dept, and Category are pre-filled and locked as per admin approval.</p>
+      </div>
+    </div>
+    <a href="{% url 'tenders:tenderCreator' %}" 
+       class="px-4 py-2 bg-white/50 border border-emerald-200 text-emerald-700 text-[0.75rem] font-bold rounded-lg hover:bg-white transition-all flex items-center gap-2">
+      <i class="fas fa-sync-alt"></i> Change Request
+    </a>
+  </div>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- ── LEFT ── -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Basic Information -->
+        <div class="form-panel ph-indigo bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)] transition-[box-shadow,border-color] duration-200">
+          <div class="panel-head flex items-center gap-[0.6rem] px-[1.35rem] py-4 border-b border-slate-200">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[0.85rem] flex-shrink-0 bg-indigo-50 text-indigo-600">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div>
+              <p class="font-sora text-[0.88rem] font-bold text-slate-700">Basic Information</p>
+              <p class="text-[0.7rem] text-slate-400 mt-px">Core tender identification details</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 px-[1.35rem] py-5">
+            <div class="flex flex-col gap-[0.3rem]">
+              <label class="font-sora text-[0.75rem] font-bold text-slate-700 flex items-center gap-[0.3rem]">
+                Tender Title <span class="text-red-500 text-[0.7rem]">*</span>
+              </label>
+              <div class="input-icon-wrap relative">
+                <i class="fas fa-heading input-icon"></i>
+                <input type="text" name="title" placeholder="e.g. Road Construction Phase II" required
+                       {% if active_request %}value="{{ active_request.tender_title }}" readonly{% endif %}
+                       class="field-input w-full pl-[2.1rem] pr-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                              font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s] {% if active_request %}opacity-75 cursor-not-allowed{% endif %}">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700 flex items-center gap-[0.3rem]">
+                  Department <span class="text-red-500 text-[0.7rem]">*</span>
+                </label>
+                <div class="select-wrap relative">
+                  {% if active_request %}
+                    <input type="text" name="department" value="{{ active_request.department_name }}" readonly
+                           class="field-input w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                                  font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 opacity-75 cursor-not-allowed">
+                  {% else %}
+                  <select name="department" required
+                          class="field-select w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                                 font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 appearance-none transition-all duration-[0.18s]">
+                    <option value="" disabled selected>Select approved department</option>
+                    {% for dept in approved_depts %}
+                      <option value="{{ dept }}">{{ dept }}</option>
+                    {% endfor %}
+                  </select>
+                  {% endif %}
+                </div>
+                {% if not approved_depts %}
+                  <p class="text-[0.65rem] text-amber-600 font-medium">Please <a href="{% url 'tenders:request_admin' %}" class="underline font-bold">request admin approval</a> for your department first.</p>
+                {% endif %}
+              </div>
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700 flex items-center gap-[0.3rem]">
+                  Category <span class="text-red-500 text-[0.7rem]">*</span>
+                </label>
+                <div class="select-wrap relative">
+                  {% if active_request %}
+                    <input type="text" name="category" value="{{ active_request.category_name }}" readonly
+                           class="field-input w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                                  font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 opacity-75 cursor-not-allowed">
+                  {% else %}
+                  <select name="category" required
+                          class="field-select w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                                 font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 appearance-none transition-all duration-[0.18s]">
+                    <option value="" disabled selected>Select approved category</option>
+                    {% for cat in approved_cats %}
+                      <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                  </select>
+                  {% endif %}
+                </div>
+                {% if not approved_cats %}
+                  <p class="text-[0.65rem] text-amber-600 font-medium">Please <a href="{% url 'tenders:request_admin' %}" class="underline font-bold">request admin approval</a> for your category first.</p>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-[0.3rem]">
+              <label class="font-sora text-[0.75rem] font-bold text-slate-700">Description</label>
+              <textarea name="description" rows="4"
+                        placeholder="Describe the scope, objectives, and requirements of this tender…"
+                        class="field-textarea w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                               font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 resize-y min-h-[88px] transition-all duration-[0.18s]"></textarea>
+              <span class="text-[0.68rem] text-slate-400 mt-px">Minimum 100 characters recommended for clarity</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Details -->
+        <div class="form-panel ph-green bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)] transition-[box-shadow,border-color] duration-200">
+          <div class="panel-head flex items-center gap-[0.6rem] px-[1.35rem] py-4 border-b border-slate-200">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[0.85rem] flex-shrink-0 bg-emerald-50 text-emerald-600">
+              <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div>
+              <p class="font-sora text-[0.88rem] font-bold text-slate-700">Financial Details</p>
+              <p class="text-[0.7rem] text-slate-400 mt-px">Budget and earnest money deposit</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 px-[1.35rem] py-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700">Estimated Value</label>
+                <div class="currency-wrap relative">
+                  <span class="currency-prefix">₹</span>
+                  <input type="number" name="estimated_value" placeholder="0.00" min="0"
+                         class="field-input w-full py-[0.6rem] pr-[0.85rem] border-[1.5px] border-slate-200
+                                font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+                </div>
+                <span class="text-[0.68rem] text-slate-400 mt-px">Total project estimated cost</span>
+              </div>
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700">EMD Amount</label>
+                <div class="currency-wrap relative">
+                  <span class="currency-prefix">₹</span>
+                  <input type="number" name="emd_amount" placeholder="0.00" min="0"
+                         class="field-input w-full py-[0.6rem] pr-[0.85rem] border-[1.5px] border-slate-200
+                                font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+                </div>
+                <span class="text-[0.68rem] text-slate-400 mt-px">Earnest money deposit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RIGHT ── -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Important Dates -->
+        <div class="form-panel ph-amber bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)] transition-[box-shadow,border-color] duration-200">
+          <div class="panel-head flex items-center gap-[0.6rem] px-[1.35rem] py-4 border-b border-slate-200">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[0.85rem] flex-shrink-0 bg-amber-50 text-amber-600">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+              <p class="font-sora text-[0.88rem] font-bold text-slate-700">Important Dates</p>
+              <p class="text-[0.7rem] text-slate-400 mt-px">Timeline and meeting schedule</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 px-[1.35rem] py-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700">Publish Date</label>
+                <input type="date" name="publish_date"
+                       class="field-input w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                              font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+              </div>
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700">Closing Date <span class="text-red-500 text-[0.7rem]">*</span></label>
+                <input type="date" name="closing_date" required
+                       class="field-input w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                              font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+              </div>
+              <div class="flex flex-col gap-[0.3rem]">
+                <label class="font-sora text-[0.75rem] font-bold text-slate-700">Pre-Bid Meeting</label>
+                <input type="datetime-local" name="pre_bid_meeting"
+                       class="field-input w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                              font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Details -->
+        <div class="form-panel ph-teal bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)] transition-[box-shadow,border-color] duration-200">
+          <div class="panel-head flex items-center gap-[0.6rem] px-[1.35rem] py-4 border-b border-slate-200">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[0.85rem] flex-shrink-0 bg-teal-50 text-teal-600">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div>
+              <p class="font-sora text-[0.88rem] font-bold text-slate-700">Project Details</p>
+              <p class="text-[0.7rem] text-slate-400 mt-px">Location and publication status</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 px-[1.35rem] py-5">
+            <div class="flex flex-col gap-[0.3rem]">
+              <label class="font-sora text-[0.75rem] font-bold text-slate-700">Location</label>
+              <div class="input-icon-wrap relative">
+                <i class="fas fa-map-marker-alt input-icon"></i>
+                <input type="text" name="location" placeholder="City, State or full address"
+                       class="field-input w-full pl-[2.1rem] pr-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                              font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 transition-all duration-[0.18s]">
+              </div>
+            </div>
+            <div class="flex flex-col gap-[0.3rem]">
+              <label class="font-sora text-[0.75rem] font-bold text-slate-700">Status</label>
+              <div class="select-wrap relative">
+                <select name="status"
+                        class="field-select w-full px-[0.85rem] py-[0.6rem] border-[1.5px] border-slate-200 rounded-[10px]
+                               font-dmSans text-[0.85rem] text-slate-800 bg-slate-50 appearance-none transition-all duration-[0.18s]">
+                  <option value="draft">🟡  Draft — Save for later</option>
+                  <option value="open">🟢  Open — Publish now</option>
+                  <option value="closed">🔴  Closed — Archive</option>
+                </select>
+              </div>
+              <span class="text-[0.68rem] text-slate-400 mt-px">Set to "Open" to make this tender visible to vendors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="form-panel ph-red bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(15,42,94,0.05)] transition-[box-shadow,border-color] duration-200">
+          <div class="panel-head flex items-center gap-[0.6rem] px-[1.35rem] py-4 border-b border-slate-200">
+            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[0.85rem] flex-shrink-0 bg-red-50 text-red-600">
+              <i class="fas fa-paperclip"></i>
+            </div>
+            <div>
+              <p class="font-sora text-[0.88rem] font-bold text-slate-700">Supporting Documents</p>
+              <p class="text-[0.7rem] text-slate-400 mt-px">Attach tender documents and drawings</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 px-[1.35rem] py-5">
+            <div class="file-zone relative border-2 border-dashed border-slate-200 rounded-xl p-5
+                        text-center cursor-pointer bg-slate-50 transition-all duration-200">
+              <input type="file" name="document" multiple accept=".pdf,.docx,.xlsx,.zip"
+                     class="absolute inset-0 opacity-0 cursor-pointer z-[2]">
+              <div class="w-10 h-10 bg-indigo-50 rounded-[10px] flex items-center justify-center text-indigo-600 text-[1rem] mx-auto mb-[0.6rem]">
+                <i class="fas fa-cloud-upload-alt"></i>
+              </div>
+              <span class="font-sora text-[0.82rem] font-bold text-slate-700 block mb-[0.2rem]">Click to upload or drag &amp; drop</span>
+              <span class="text-[0.7rem] text-slate-400">Multiple files supported · Max 20 MB each</span>
+              <div class="flex flex-wrap gap-[0.35rem] justify-center mt-[0.6rem]">
+                <span class="px-2 py-[2px] bg-white border border-slate-200 rounded-[6px] text-[0.65rem] font-bold text-slate-400 tracking-[0.04em] uppercase">PDF</span>
+                <span class="px-2 py-[2px] bg-white border border-slate-200 rounded-[6px] text-[0.65rem] font-bold text-slate-400 tracking-[0.04em] uppercase">DOCX</span>
+                <span class="px-2 py-[2px] bg-white border border-slate-200 rounded-[6px] text-[0.65rem] font-bold text-slate-400 tracking-[0.04em] uppercase">XLSX</span>
+                <span class="px-2 py-[2px] bg-white border border-slate-200 rounded-[6px] text-[0.65rem] font-bold text-slate-400 tracking-[0.04em] uppercase">ZIP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════ FOOTER ACTIONS ══════ -->
+    <div class="flex items-center justify-between gap-4 flex-wrap mt-4
+                bg-white border border-slate-200 rounded-2xl px-6 py-[1.1rem]
+                shadow-[0_2px_12px_rgba(15,42,94,0.05)]">
+      <p class="text-[0.75rem] text-slate-400 flex items-center gap-[0.4rem]">
+        <i class="fas fa-shield-alt text-emerald-500 text-[0.7rem]"></i>
+        All submissions are logged and auditable under eBharat Tender policy
+      </p>
+      <div class="flex items-center gap-[0.6rem]">
+        <a href="{% url 'tenders:dashboard' %}"
+           class="inline-flex items-center gap-[0.4rem] px-[1.1rem] py-[0.55rem]
+                  bg-white border-[1.5px] border-slate-200 rounded-[10px]
+                  text-slate-400 font-sora text-[0.82rem] font-semibold no-underline cursor-pointer
+                  transition-all duration-[0.18s] hover:border-slate-400 hover:text-slate-700 hover:bg-slate-50">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+        <button type="submit" name="save_draft"
+                class="inline-flex items-center gap-[0.4rem] px-[1.1rem] py-[0.55rem]
+                       bg-slate-100 border-[1.5px] border-slate-200 rounded-[10px]
+                       text-slate-700 font-sora text-[0.82rem] font-semibold cursor-pointer
+                       transition-all duration-[0.18s] hover:bg-slate-200 hover:border-slate-400">
+          <i class="fas fa-save"></i> Save Draft
+        </button>
+        <button type="submit" 
+                class="inline-flex items-center gap-[0.45rem] px-[1.35rem] py-[0.58rem]
+                       rounded-[10px] text-white font-sora text-[0.85rem] font-bold cursor-pointer
+                       shadow-[0_2px_8px_rgba(26,86,219,0.3)] transition-all duration-200
+                       hover:shadow-[0_4px_16px_rgba(26,86,219,0.4)] hover:-translate-y-px active:translate-y-0"
+                style="background: linear-gradient(135deg,#456ea9,#4a6ed8);">
+          <i class="fas fa-paper-plane"></i> Publish Tender
+        </button>
+      </div>
+    </div>
+
+  </form>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════════════════
+     PAGE HERO — matches the noticeboard/tenders pattern
+════════════════════════════════════════════════════ -->
+<div class="relative overflow-hidden"
+     style="background: linear-gradient(135deg, #09193a 0%, #0f2a5e 52%, #163472 100%);">
+
+  <!-- Soft radial glow -->
+  <div class="absolute inset-0 pointer-events-none"
+       style="background:radial-gradient(ellipse 52% 100% at 90% 50%, rgba(26,86,219,0.18) 0%, transparent 70%);"></div>
+
+  <!-- Dot-grid texture -->
+  <div class="absolute inset-0 pointer-events-none opacity-[0.035]"
+       style="background-image:radial-gradient(#ffffff 1px,transparent 1px);background-size:30px 30px;"></div>
+
+  <div class="relative z-10 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+
+      <!-- Left: title group -->
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-[1.1rem] flex-shrink-0
+                    shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+             style="background:linear-gradient(135deg,#1a56db,#163472);">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div>
+          <h1 class="font-sora text-[1.35rem] sm:text-[1.6rem] font-extrabold text-white leading-tight">
+            Contact Us &amp; Support
+          </h1>
+          <p class="font-dmSans text-[0.76rem] text-white/45 mt-px">
+            Helpdesk &amp; query resolution for the eBharat procurement platform
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: meta pills -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-[5px] px-3 py-[5px] rounded-full
+                     font-sora text-[0.6rem] font-bold tracking-[0.06em] uppercase
+                     bg-[#1a56db]/20 border border-[#3b82f6]/25 text-white">
+          <i class="fas fa-clock text-[0.5rem]"></i> Replies within 24 hrs
+        </span>
+        <span class="inline-flex items-center gap-[5px] px-3 py-[5px] rounded-full
+                     font-sora text-[0.6rem] font-bold tracking-[0.06em] uppercase
+                     bg-emerald-500/15 border border-emerald-400/25 text-emerald-300">
+          <i class="fas fa-circle text-[0.45rem] animate-pulse"></i> Support Active
+        </span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════ -->
+<div class="bg-[#f8faff] min-h-screen">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+    <!-- Success / Error Message -->
+    {% if messages %}
+      {% for message in messages %}
+      <div class="mb-8 flex items-start gap-4 p-5 rounded-2xl
+                  {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-base
+                    {% if message.tags == 'success' %}bg-emerald-500{% else %}bg-[#1a56db]{% endif %}">
+          <i class="fas {% if message.tags == 'success' %}fa-check{% else %}fa-info{% endif %}"></i>
+        </div>
+        <div>
+          <p class="font-sora font-bold text-[0.9rem]
+                    {% if message.tags == 'success' %}text-emerald-800{% else %}text-blue-900{% endif %}">
+            {{ message }}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+
+      <!-- ══ FORM (left) ══ -->
+      <div>
+        <!-- Card header -->
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden
+                    shadow-[0_2px_12px_rgba(15,42,94,0.06)]">
+          <div class="flex items-center gap-3 px-6 py-[1rem] border-b border-[#f1f5f9]"
+               style="background:linear-gradient(135deg,#09193a,#0f2a5e);">
+            <i class="fas fa-paper-plane text-white/60 text-sm"></i>
+            <span class="font-sora font-bold text-[0.88rem] text-white">Submit an Enquiry</span>
+          </div>
+          <div class="p-6 sm:p-8">
+            <form action="{% url 'public:contact' %}" method="POST" class="space-y-5">
+              {% csrf_token %}
+
+              <!-- Row 1 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block font-sora text-[0.72rem] font-bold text-[#64748b]
+                                uppercase tracking-[0.07em] mb-2">Full Name</label>
+                  <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[0.78rem]"></i>
+                    <input type="text" name="full_name" required
+                           class="w-full pl-10 pr-4 py-3 border border-[#e2e8f0] rounded-xl bg-[#f8faff]
+                                  text-[0.88rem] font-dmSans text-[#0f2a5e]
+                                  focus:outline-none focus:border-[#1a56db] focus:bg-white
+                                  focus:shadow-[0_0_0_3px_rgba(26,86,219,0.1)] transition-all duration-200"
+                           placeholder="e.g. Rajesh Kumar">
+                  </div>
+                </div>
+                <div>
+                  <label class="block font-sora text-[0.72rem] font-bold text-[#64748b]
+                                uppercase tracking-[0.07em] mb-2">Email Address</label>
+                  <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[0.78rem]"></i>
+                    <input type="email" name="email" required
+                           class="w-full pl-10 pr-4 py-3 border border-[#e2e8f0] rounded-xl bg-[#f8faff]
+                                  text-[0.88rem] font-dmSans text-[#0f2a5e]
+                                  focus:outline-none focus:border-[#1a56db] focus:bg-white
+                                  focus:shadow-[0_0_0_3px_rgba(26,86,219,0.1)] transition-all duration-200"
+                           placeholder="e.g. rajesh@company.in">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div>
+                <label class="block font-sora text-[0.72rem] font-bold text-[#64748b]
+                              uppercase tracking-[0.07em] mb-2">Subject of Enquiry</label>
+                <div class="relative">
+                  <i class="fas fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[0.78rem]"></i>
+                  <input type="text" name="subject" required
+                         class="w-full pl-10 pr-4 py-3 border border-[#e2e8f0] rounded-xl bg-[#f8faff]
+                                text-[0.88rem] font-dmSans text-[#0f2a5e]
+                                focus:outline-none focus:border-[#1a56db] focus:bg-white
+                                focus:shadow-[0_0_0_3px_rgba(26,86,219,0.1)] transition-all duration-200"
+                         placeholder="e.g. Issue with bid submission or document upload">
+                </div>
+              </div>
+
+              <!-- Message -->
+              <div>
+                <label class="block font-sora text-[0.72rem] font-bold text-[#64748b]
+                              uppercase tracking-[0.07em] mb-2">Detailed Message</label>
+                <textarea name="message" rows="6" required
+                          class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl bg-[#f8faff] resize-none
+                                 text-[0.88rem] font-dmSans text-[#0f2a5e] leading-relaxed
+                                 focus:outline-none focus:border-[#1a56db] focus:bg-white
+                                 focus:shadow-[0_0_0_3px_rgba(26,86,219,0.1)] transition-all duration-200"
+                          placeholder="Please describe your issue or query in detail so our team can provide an accurate response..."></textarea>
+              </div>
+
+              <!-- Submit -->
+              <div class="flex items-center justify-between flex-wrap gap-4 pt-2">
+                <p class="font-dmSans text-[0.76rem] text-[#94a3b8] flex items-center gap-1.5">
+                  <i class="fas fa-shield-halved text-[0.7rem]"></i>
+                  Your information is securely handled under Government data policy.
+                </p>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-8 py-3 rounded-[50px] font-sora font-bold
+                               text-[0.84rem] text-white tracking-[0.03em] transition-all duration-200
+                               hover:-translate-y-[2px] hover:shadow-[0_8px_20px_rgba(26,86,219,0.3)]
+                               active:translate-y-0"
+                        style="background:linear-gradient(135deg,#0f2a5e,#1a56db);">
+                  <i class="fas fa-paper-plane text-[0.8rem]"></i>
+                  Submit Enquiry
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ══ SIDEBAR (right) ══ -->
+      <aside class="flex flex-col gap-5 lg:sticky lg:top-[calc(66px+1.5rem)]">
+
+        <!-- Contact Details Card -->
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden
+                    shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-3 px-4 py-[0.85rem] border-b border-[#f1f5f9]">
+            <div class="w-8 h-8 rounded-[9px] bg-blue-50 flex items-center justify-center text-[#1a56db] text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-address-book"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Contact Channels</p>
+          </div>
+          <div class="px-4 py-4 flex flex-col gap-4">
+            <!-- Email -->
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#eff6ff] text-[#1a56db] flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div>
+                <p class="font-sora text-[0.7rem] font-bold text-[#64748b] uppercase tracking-wider">Email</p>
+                <a href="mailto:support@ebtender.gov.in" class="font-dmSans text-[0.82rem] font-semibold text-[#0f2a5e] hover:text-[#1a56db] transition-colors no-underline">
+                  support@ebtender.gov.in
+                </a>
+              </div>
+            </div>
+            <!-- Phone -->
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fas fa-phone"></i>
+              </div>
+              <div>
+                <p class="font-sora text-[0.7rem] font-bold text-[#64748b] uppercase tracking-wider">Toll-Free Helpline</p>
+                <span class="font-sora text-[0.88rem] font-bold text-[#0f2a5e]">1800-XXX-XXXX</span>
+              </div>
+            </div>
+            <!-- Hours -->
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div>
+                <p class="font-sora text-[0.7rem] font-bold text-[#64748b] uppercase tracking-wider">Working Hours</p>
+                <span class="font-dmSans text-[0.82rem] text-[#0f2a5e]">Mon–Sat, 9 AM – 6 PM IST</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQs Card -->
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden
+                    shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-3 px-4 py-[0.85rem] border-b border-[#f1f5f9]">
+            <div class="w-8 h-8 rounded-[9px] bg-purple-50 flex items-center justify-center text-purple-600 text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-circle-question"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Common Questions</p>
+          </div>
+          <div class="px-4 py-4 flex flex-col divide-y divide-[#f1f5f9]">
+            <div class="py-3">
+              <p class="font-sora text-[0.8rem] font-semibold text-[#0f2a5e] mb-1">How do I reset my login?</p>
+              <p class="font-dmSans text-[0.76rem] text-[#64748b]">Click "Forgot Password" on the login page to receive a reset link.</p>
+            </div>
+            <div class="py-3">
+              <p class="font-sora text-[0.8rem] font-semibold text-[#0f2a5e] mb-1">Can I withdraw a submitted bid?</p>
+              <p class="font-dmSans text-[0.76rem] text-[#64748b]">Yes — go to My Bids and click Withdraw before the deadline.</p>
+            </div>
+            <div class="py-3">
+              <p class="font-sora text-[0.8rem] font-semibold text-[#0f2a5e] mb-1">How long for approval?</p>
+              <p class="font-dmSans text-[0.76rem] text-[#64748b]">Typically 3–5 working days after the submission deadline.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portal links -->
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden
+                    shadow-[0_2px_10px_rgba(15,42,94,0.05)]">
+          <div class="flex items-center gap-3 px-4 py-[0.85rem] border-b border-[#f1f5f9]">
+            <div class="w-8 h-8 rounded-[9px] bg-slate-100 flex items-center justify-center text-slate-600 text-[0.78rem] flex-shrink-0">
+              <i class="fas fa-link"></i>
+            </div>
+            <p class="font-sora text-[0.85rem] font-bold text-[#0f2a5e]">Quick Links</p>
+          </div>
+          <div class="px-4 py-3 flex flex-col gap-1">
+            <a href="{% url 'public:tenders' %}" class="flex items-center gap-2 py-2 font-dmSans text-[0.82rem] text-[#475569] hover:text-[#1a56db] no-underline transition-colors">
+              <i class="fas fa-gavel text-[0.7rem] text-[#94a3b8]"></i> Browse Active Tenders
+            </a>
+            <a href="{% url 'public:noticeboard' %}" class="flex items-center gap-2 py-2 font-dmSans text-[0.82rem] text-[#475569] hover:text-[#1a56db] no-underline transition-colors">
+              <i class="fas fa-bullhorn text-[0.7rem] text-[#94a3b8]"></i> Official Noticeboard
+            </a>
+            <a href="{% url 'public:funding' %}" class="flex items-center gap-2 py-2 font-dmSans text-[0.82rem] text-[#475569] hover:text-[#1a56db] no-underline transition-colors">
+              <i class="fas fa-hand-holding-dollar text-[0.7rem] text-[#94a3b8]"></i> Funding Schemes
+            </a>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

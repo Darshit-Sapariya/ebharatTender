@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBharat Tender – Status Update</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-height:1.6;}
+.outer{max-width:650px;margin:30px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05); border: 1px solid #CBD5E1;}
+.header{background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);padding:40px 40px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);}
+.ashoka{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 15px;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.2);}
+.header h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#ffffff;margin-bottom:5px;letter-spacing:1px;}
+.header p{font-size:12px;color:#93C5FD;text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.body{padding:40px;}
+.salutation{font-size:18px;font-weight:600;color:#0F172A;margin-bottom:15px;}
+.intro{font-size:15px;color:#475569;margin-bottom:30px;}
+
+.status-card{border-radius:10px;padding:30px;margin-bottom:30px;text-align:center;border:2px solid;}
+.status-approved{background:#F0FDF4;border-color:#BBF7D0;}
+.status-rejected{background:#FEF2F2;border-color:#FECACA;}
+
+.status-icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:30px;font-weight:bold;}
+.status-approved .status-icon{background:#DCFCE7;color:#16A34A;}
+.status-rejected .status-icon{background:#FEE2E2;color:#DC2626;}
+
+.status-title{font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.status-approved .status-title{color:#15803D;}
+.status-rejected .status-title{color:#B91C1C;}
+
+.status-text{font-size:16px;color:#1E293B;font-weight:500;}
+
+.remark-box{margin-top:25px;background:#ffffff;padding:20px;border-radius:8px;font-size:14px;color:#475569;text-align:left;border:1px solid #E2E8F0;box-shadow:0 2px 4px rgba(0,0,0,0.02);}
+.remark-label{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;}
+
+.next-steps{background:#F8FAFC;border-left:4px solid #3B82F6;padding:20px 25px;border-radius:0 8px 8px 0;margin-bottom:30px;font-size:14px;color:#475569;}
+
+.signature{font-size:15px;color:#334155;line-height:1.8;}
+.signature strong{color:#0F172A;display:block;}
+
+.footer{background:#F1F5F9;padding:30px 40px;text-align:center;border-top:1px solid #E2E8F0;}
+.contact-info{font-size:13px;color:#64748B;margin-bottom:20px;}
+.contact-info strong{color:#475569;}
+.links{margin-top:20px;}
+.links a{color:#2563EB;text-decoration:none;font-size:13px;margin:0 10px;font-weight:500;}
+</style>
+</head>
+<body>
+<div class="outer">
+  <div class="header">
+    <h1>Activity Notification</h1>
+    <p>Official System Notice</p>
+  </div>
+
+  <div class="body">
+    <div class="salutation">Dear {{ user_name }},</div>
+    <div class="intro">
+      This is a formal notification regarding the status update of your <strong>{{ activity_name }}</strong> on the eBharat Tender Portal.
+    </div>
+
+    <div class="status-card {% if status == 'approved' %}status-approved{% else %}status-rejected{% endif %}">
+      <div class="status-icon">
+        {% if status == 'approved' %}✓{% else %}✗{% endif %}
+      </div>
+      <div class="status-title">{{ status }}</div>
+      <div class="status-text">
+        The request for <strong style="color: inherit;">{{ item_name }}</strong> has been officially {{ status }}.
+      </div>
+      
+      {% if remark %}
+      <div class="remark-box">
+        <span class="remark-label">Administrator Remarks</span>
+        "{{ remark }}"
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="next-steps">
+      {% if status == 'approved' %}
+      <strong style="color: #0F172A; display: block; margin-bottom: 5px;">Congratulations!</strong>
+      You may now proceed with the next steps associated with this activity. Please log in to your dashboard to continue.
+      {% else %}
+      <strong style="color: #0F172A; display: block; margin-bottom: 5px;">Action Required</strong>
+      We regret to inform you that your request could not be approved at this time. Please review the remarks above and take necessary corrective actions or contact support for clarification.
+      {% endif %}
+    </div>
+
+    <div class="signature">
+      Sincerely,
+      <strong>eBharat Administration Team</strong>
+      System Automated Notice<br>
+      <span style="font-size: 13px; color: #64748B;">Government of India</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="contact-info">
+      This System is operated by the Government of India.<br>
+      For technical queries, contact: <strong>support@ebtender.gov.in</strong>
+    </div>
+    <div class="links">
+      <a href="#">Help Centre</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px; color: #94A3B8;">
+      © 2026 Government of India. All rights reserved.
+    </div>
+  </div>
+</div>
+</body>
+</html>

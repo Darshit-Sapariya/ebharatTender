@@ -1,0 +1,210 @@
+{% extends 'base1.html' %}
+{% block content %}
+
+<style>
+  .ar-header::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none;
+  }
+  .status-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .status-approved { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  .status-rejected { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideInLeft { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
+  .animate-slide-in-left { animation: slideInLeft 0.6s ease-out forwards; }
+  .animate-slide-in-right { animation: slideInRight 0.6s ease-out forwards; }
+</style>
+
+<div class="p-4 sm:p-7 flex flex-col gap-6">
+
+  <!-- Header -->
+  <div class="ar-header relative rounded-2xl overflow-hidden px-5 py-4 sm:px-8 sm:py-6 animate-fade-in"
+       style="background: linear-gradient(135deg, #7580f7 0%, #7275c3 50%, #5e58c1 100%);">
+    <div class="relative z-[1]">
+      <p class="text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase tracking-wider text-white/40 mb-1">Authorization</p>
+      <h1 class="font-sora text-[1.1rem] sm:text-[1.5rem] font-extrabold text-white leading-tight">Request Admin Permission</h1>
+      <p class="text-[0.72rem] sm:text-[0.8rem] text-white/50 mt-1 hidden sm:block">Register your department and category to start publishing tenders.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] xl:grid-cols-[1fr_400px] gap-6 items-start">
+    
+    <!-- Request Form -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-slide-in-left">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
+        <h3 class="font-sora text-[1rem] font-extrabold text-slate-800">Submit New Request</h3>
+      </div>
+      <form method="POST" class="p-6 flex flex-col gap-5 show-loader">
+        {% csrf_token %}
+        <div class="flex flex-col gap-1.5 group">
+          <label class="text-[0.8rem] font-bold text-slate-700 group-focus-within:text-indigo-600 transition-colors">Tender Title</label>
+          <input type="text" name="tender_title" required placeholder="e.g. Construction of New Bridge"
+                 class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-[0.9rem] focus:border-indigo-500 focus:bg-white outline-none transition-all focus:ring-4 focus:ring-indigo-500/10">
+        </div>
+        <div class="flex flex-col gap-1.5 group">
+          <label class="text-[0.8rem] font-bold text-slate-700 group-focus-within:text-indigo-600 transition-colors">Department Name</label>
+          <input type="text" name="department_name" required placeholder="e.g. Public Works Department"
+                 class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-[0.9rem] focus:border-indigo-500 focus:bg-white outline-none transition-all focus:ring-4 focus:ring-indigo-500/10">
+        </div>
+        <div class="flex flex-col gap-1.5 group">
+          <label class="text-[0.8rem] font-bold text-slate-700 group-focus-within:text-indigo-600 transition-colors">Category</label>
+          <input type="text" name="category_name" required placeholder="e.g. Construction"
+                 class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-[0.9rem] focus:border-indigo-500 focus:bg-white outline-none transition-all focus:ring-4 focus:ring-indigo-500/10">
+        </div>
+        <button type="submit" 
+                class="w-full mt-4 py-4 bg-[#4f46e5] text-white font-sora font-extrabold rounded-xl hover:bg-indigo-600 active:scale-[0.98] transition-all shadow-[0_4px_12px_rgba(79,70,229,0.25)] flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane text-[0.85rem]"></i>
+          <span>Submit Request</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Info/Notice -->
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 lg:p-7 animate-slide-in-right">
+      <h4 class="font-sora text-[1rem] font-extrabold text-indigo-900 mb-3 flex items-center gap-2">
+        <i class="fas fa-info-circle text-indigo-500"></i> Why is this required?
+      </h4>
+      <p class="text-[0.85rem] text-indigo-800/80 leading-relaxed font-medium">
+        To maintain data integrity and professional standards, all departments and categories must be verified by administrators. 
+        Once approved, these options will appear in your tender publication form.
+      </p>
+      <div class="mt-6 flex flex-col gap-3">
+        <div class="flex items-center gap-3 text-[0.8rem] text-indigo-900/60 font-semibold bg-white/40 p-3 rounded-xl border border-white/60">
+          <i class="fas fa-clock w-5 h-5 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-lg text-[0.7rem]"></i>
+          Approval usually takes 24-48 hours.
+        </div>
+        <div class="flex items-center gap-3 text-[0.8rem] text-indigo-900/60 font-semibold bg-white/40 p-3 rounded-xl border border-white/60">
+          <i class="fas fa-check-double w-5 h-5 flex items-center justify-center bg-emerald-100 text-emerald-600 rounded-lg text-[0.7rem]"></i>
+          You'll receive a notification upon update.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Request History -->
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-slide-up">
+    <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <h3 class="font-sora text-[1rem] font-extrabold text-slate-800">Your Request History</h3>
+      <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[0.7rem] font-extrabold rounded-full border border-indigo-100 w-fit">
+        {{ requests|length }} Request{{ requests|length|pluralize }} Total
+      </span>
+    </div>
+
+    <!-- Desktop View (Visible on Large screens and up) -->
+    <div class="hidden lg:block">
+      <table class="w-full text-left border-collapse table-fixed">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="w-[28%] px-6 py-4 text-[0.72rem] font-extrabold uppercase tracking-widest text-slate-500">Tender Title</th>
+            <th class="w-[22%] px-6 py-4 text-[0.72rem] font-extrabold uppercase tracking-widest text-slate-500">Department</th>
+            <th class="w-[18%] px-6 py-4 text-[0.72rem] font-extrabold uppercase tracking-widest text-slate-500">Category</th>
+            <th class="w-[14%] px-6 py-4 text-[0.72rem] font-extrabold uppercase tracking-widest text-slate-500 text-center">Status</th>
+            <th class="w-[18%] px-6 py-4 text-[0.72rem] font-extrabold uppercase tracking-widest text-slate-500 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for req in requests %}
+          <tr class="hover:bg-slate-50/50 transition-colors group">
+            <td class="px-6 py-5 font-extrabold text-slate-800 text-[0.92rem] break-words">{{ req.tender_title|default:"—" }}</td>
+            <td class="px-6 py-5 text-slate-600 text-[0.88rem] font-medium break-words leading-tight">{{ req.department_name }}</td>
+            <td class="px-6 py-5 text-slate-600 text-[0.88rem] font-medium break-words leading-tight">{{ req.category_name }}</td>
+            <td class="px-6 py-5">
+              <div class="flex justify-center">
+                <span class="px-3 py-1 rounded-full text-[0.65rem] font-extrabold uppercase tracking-wider shadow-sm
+                             status-{{ req.status }}">
+                  {{ req.status }}
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-5 text-right">
+               {% if req.status == 'approved' and not req.is_published %}
+               <a href="{% url 'tenders:tenderCreator' %}?request_id={{ req.id }}" 
+                  class="ml-auto px-4 py-2 bg-emerald-500 text-white text-[0.72rem] font-extrabold rounded-xl hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-200 active:scale-[0.95] transition-all flex items-center gap-2 w-fit">
+                  <i class="fas fa-plus-circle"></i> Publish
+               </a>
+               {% elif req.is_published %}
+               <div class="flex justify-end">
+                <span class="text-[0.68rem] text-slate-400 font-extrabold italic bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 whitespace-nowrap">
+                  <i class="fas fa-check-circle text-emerald-500 mr-1.5"></i>Published
+                </span>
+               </div>
+               {% else %}
+               <span class="text-[0.7rem] text-slate-300 font-bold pr-2">—</span>
+               {% endif %}
+            </td>
+          </tr>
+          <!-- ... simplified rest for brevity -->
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile/Tablet View (Cards) - Shown below lg (1024px) -->
+    <div class="lg:hidden divide-y divide-slate-100">
+      {% for req in requests %}
+      <div class="p-5 flex flex-col gap-4 hover:bg-slate-50/50 transition-colors">
+        <div class="flex justify-between items-start gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-[0.6rem] font-extrabold text-slate-400 uppercase tracking-widest mb-1 leading-none">Tender Title</p>
+            <h4 class="font-sora text-[0.95rem] sm:text-[1rem] font-extrabold text-slate-800 leading-tight">
+              {{ req.tender_title|default:"—" }}
+            </h4>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[0.62rem] font-extrabold uppercase tracking-wider shadow-sm flex-shrink-0
+                       status-{{ req.status }}">
+            {{ req.status }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[0.6rem] font-extrabold text-slate-400 uppercase tracking-widest mb-1 leading-none">Department</p>
+            <p class="text-[0.85rem] font-bold text-slate-700 leading-snug break-words">
+              {{ req.department_name }}
+            </p>
+          </div>
+          <div>
+            <p class="text-[0.6rem] font-extrabold text-slate-400 uppercase tracking-widest mb-1 leading-none">Category</p>
+            <p class="text-[0.85rem] font-bold text-slate-700 leading-snug break-words">
+              {{ req.category_name }}
+            </p>
+          </div>
+        </div>
+
+        {% if req.status == 'approved' and not req.is_published %}
+        <a href="{% url 'tenders:tenderCreator' %}?request_id={{ req.id }}" 
+           class="w-full py-3.5 bg-emerald-500 text-white text-[0.85rem] font-extrabold rounded-xl shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-[0.98] transition-all mt-1">
+           <i class="fas fa-plus-circle"></i> Publish Now
+        </a>
+        {% elif req.is_published %}
+        <div class="w-full py-3 bg-slate-50 border border-slate-100 text-slate-400 text-[0.8rem] font-extrabold rounded-xl flex items-center justify-center gap-2 mt-1 italic">
+          <i class="fas fa-check-circle text-emerald-500"></i> Published
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="px-6 py-20 text-center text-slate-400">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-2">
+            <i class="fas fa-folder-open text-[1.5rem] opacity-30"></i>
+          </div>
+          <p class="text-[1rem] font-extrabold text-slate-700">No History Found</p>
+          <p class="text-[0.8rem] opacity-70">Your admin requests will show up here.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

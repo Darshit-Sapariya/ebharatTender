@@ -1,0 +1,118 @@
+{% extends "base2.html" %}
+{% block content %}
+
+<style>
+  /* Hero decorative circles */
+  .hero-banner::before,
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hero-banner::before {
+    width: 260px; height: 260px;
+    right: -60px; top: -80px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+  .hero-banner::after {
+    width: 160px; height: 160px;
+    right: 40px; bottom: -60px;
+    border: 1.5px solid rgba(255,255,255,0.05);
+  }
+  /* Hero grid texture */
+  .hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* Hover transforms */
+  .activity-item:hover { border-color: #cbd5e1; background: white; box-shadow: 0 4px 12px rgba(15,42,94,0.05); }
+  .btn-action:hover    { background: #eff6ff; border-color: #bfdbfe; color: #ea580c; transform: translateY(-1px); }
+  .btn-action.danger:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+</style>
+
+<!-- ══════ PAGE WRAPPER ══════ -->
+<div class="flex flex-col gap-6 max-sm:gap-4">
+
+  <!-- ══════ HERO ══════ -->
+  <div class="hero-banner relative flex items-center justify-between gap-6 flex-wrap px-8 py-7 rounded-2xl overflow-hidden"
+        style="background:linear-gradient(135deg, #7580f7 0%,#7275c3 45%,#5e58c1 100%);
+              box-shadow:0 8px 24px rgba(26,86,219,0.15);">
+    <div class="hero-grid"></div>
+    <div class="relative z-[1] flex-1 min-w-0">
+      <p class="text-[0.72rem] font-medium tracking-[0.1em] uppercase mb-[0.3rem]" style="color:rgba(255,255,255,0.6);">Saved Items</p>
+      <h1 class="font-sora text-[1.6rem] font-extrabold text-white leading-[1.25] mb-[0.35rem]">My Watchlist</h1>
+      <p class="text-[0.85rem] mb-0" style="color:rgba(255,255,255,0.7);">Keep track of tenders you are interested in and apply when you are ready.</p>
+    </div>
+  </div>
+
+  <!-- ══════ WATCHLIST PANEL ══════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+
+    <!-- Panel Header -->
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+      <h2 class="font-sora text-[1.05rem] font-bold text-navy flex items-center gap-2 m-0">
+        <i class="fas fa-star text-amber-400"></i> Saved Tenders
+      </h2>
+      <span class="px-3 py-2 rounded-[10px] bg-slate-100 text-slate-700 text-[0.78rem] font-bold">
+        {{ watchlist|length }} Items
+      </span>
+    </div>
+
+    <!-- Watchlist Items -->
+    <div class="flex flex-col gap-4 p-6">
+      {% for item in watchlist %}
+      <div class="activity-item flex items-center justify-between px-5 py-5 border border-slate-200 rounded-xl bg-surface transition-all duration-200">
+
+        <!-- Left: tender info -->
+        <div class="flex-1 min-w-0">
+          <div class="font-sora text-base font-bold text-navy mb-[0.2rem] truncate">{{ item.tender.title }}</div>
+          <div class="flex gap-4 text-[0.85rem] text-muted flex-wrap">
+            <span><i class="fas fa-building opacity-50 pe-1"></i>{{ item.tender.department }}</span>
+            <span><i class="fas fa-calendar-times opacity-50 pe-1"></i>Closes: {{ item.tender.closing_date|date:"d M Y" }}</span>
+            <span class="font-bold text-emerald-600">₹ {{ item.tender.estimated_value }}</span>
+          </div>
+        </div>
+
+        <!-- Right: badge + actions -->
+        <div class="flex items-center gap-2 flex-shrink-0 ms-4">
+          {% if item.tender.status == "open" %}
+            <span class="px-[14px] py-[6px] rounded-[20px] text-[0.75rem] font-bold uppercase tracking-[0.04em] bg-green-100 text-green-800 me-2">Open</span>
+          {% else %}
+            <span class="px-[14px] py-[6px] rounded-[20px] text-[0.75rem] font-bold uppercase tracking-[0.04em] bg-slate-100 text-slate-600 me-2">Closed</span>
+          {% endif %}
+
+          <a href="{% url 'tenders:tenderDetails' item.tender.id %}"
+             class="btn-action inline-flex items-center justify-center gap-1 px-5 py-2 rounded-[10px] border border-slate-200 bg-white text-navy text-[0.8rem] font-semibold no-underline transition-all duration-200">
+            <i class="fas fa-eye pe-1"></i> View
+          </a>
+          <a href="{% url 'bids:toggle_watchlist' item.tender.id %}"
+             title="Remove from Watchlist"
+             class="btn-action danger inline-flex items-center justify-center gap-1 px-4 py-2 rounded-[10px] border text-red-400 bg-white text-[0.8rem] font-semibold no-underline transition-all duration-200"
+             style="border-color:#fecaca;">
+            <i class="fas fa-trash-alt"></i>
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center py-12 text-muted">
+        <i class="fas fa-star mb-3 block text-[3rem] opacity-20"></i>
+        <p class="text-lg font-bold mb-2 text-slate-700">No tenders saved yet</p>
+        <p class="text-sm mb-0">Browse tenders and click the star icon to save them here.</p>
+        <a href="{% url 'public:tenders' %}"
+           class="inline-flex items-center gap-2 mt-6 px-6 py-2 rounded-[10px] bg-orange text-white font-sora font-bold text-[0.9rem] no-underline hover:bg-navy transition-all duration-200">
+          Find Tenders
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

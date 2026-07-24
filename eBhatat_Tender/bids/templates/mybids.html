@@ -1,0 +1,232 @@
+{% extends "base2.html" %}
+{% block content %}
+
+<style>
+  /* Hero decorative circles */
+  .hero-banner::before,
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hero-banner::before {
+    width: 260px; height: 260px;
+    right: -60px; top: -80px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+  .hero-banner::after {
+    width: 160px; height: 160px;
+    right: 40px; bottom: -60px;
+    border: 1.5px solid rgba(255,255,255,0.05);
+  }
+  /* Hero grid texture */
+  .hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* Hover transforms */
+  .stat-card:hover    { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(15,42,94,0.12); border-color: #cbd5e1; }
+  .btn-filter:hover   { background: #ea580c; transform: translateY(-1px); }
+  .btn-action:hover   { background: #eff6ff; border-color: #bfdbfe; color: #ea580c; }
+  .filter-input:focus { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+  tr:hover td         { background: #fafafa; }
+</style>
+
+<!-- ══════ PAGE WRAPPER ══════ -->
+<div class="flex flex-col gap-6 max-sm:gap-4">
+
+  <!-- ══════ HERO ══════ -->
+  <div class="hero-banner relative flex items-center justify-between gap-6 flex-wrap px-8 py-7 rounded-2xl overflow-hidden"
+        style="background:linear-gradient(135deg, #7580f7 0%,#7275c3 45%,#5e58c1 100%);
+              box-shadow:0 8px 24px rgba(26,86,219,0.15);">
+    <div class="hero-grid"></div>
+    <div class="relative z-[1] flex-1 min-w-0">
+      <p class="text-[0.72rem] font-medium tracking-[0.1em] uppercase mb-[0.3rem]" style="color:rgba(255,255,255,0.6);">Bid Management</p>
+      <h1 class="font-sora text-[1.6rem] font-extrabold text-white leading-[1.25] mb-[0.35rem]">My Bids History</h1>
+      <p class="text-[0.85rem] mb-0" style="color:rgba(255,255,255,0.7);">Track all your submitted tender applications and their current evaluation status.</p>
+    </div>
+  </div>
+
+  <!-- ══════ STATS GRID ══════ -->
+  <div class="grid gap-5" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+
+    <div class="stat-card flex items-start gap-4 bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-200"
+         style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[1.4rem] flex-shrink-0 bg-blue-50 text-orange-light">
+        <i class="fas fa-folder-open"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.05em] mb-[0.3rem]">Total Submissions</div>
+        <div class="font-sora text-[1.7rem] font-extrabold text-navy leading-none">{{ bids|length }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card flex items-start gap-4 bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-200"
+         style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[1.4rem] flex-shrink-0 bg-amber-50 text-accent">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.05em] mb-[0.3rem]">Pending Review</div>
+        <div class="font-sora text-[1.7rem] font-extrabold text-navy leading-none">{{ pending_count }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card flex items-start gap-4 bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-200"
+         style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[1.4rem] flex-shrink-0 bg-green-50 text-emerald-500">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.05em] mb-[0.3rem]">Approved Bids</div>
+        <div class="font-sora text-[1.7rem] font-extrabold text-navy leading-none">{{ approved_count }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card flex items-start gap-4 bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-200"
+         style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[1.4rem] flex-shrink-0 bg-red-50 text-red-400">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.05em] mb-[0.3rem]">Rejected Bids</div>
+        <div class="font-sora text-[1.7rem] font-extrabold text-navy leading-none">{{ rejected_count }}</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════ FILTER & TABLE PANEL ══════ -->
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden"
+       style="box-shadow:0 2px 16px rgba(15,42,94,0.07);">
+
+    <!-- Filter Header -->
+    <div class="px-6 py-5 border-b border-slate-200 bg-[#fcfdfd]">
+      <form method="get" class="flex flex-wrap gap-4 items-end w-full m-0">
+
+        <div class="flex flex-col gap-[0.4rem] flex-1 min-w-[200px] max-md:min-w-full">
+          <label class="text-[0.8rem] font-semibold text-text">Search Tenders</label>
+          <input type="text" name="search" placeholder="Search by tender title..."
+                 value="{{ request.GET.search }}"
+                 class="filter-input px-4 py-[0.65rem] rounded-[10px] border-[1.5px] border-slate-200 text-[0.85rem] text-text transition-all duration-200">
+        </div>
+
+        <div class="flex flex-col gap-[0.4rem] min-w-[200px] max-md:min-w-full" style="flex:0.5;">
+          <label class="text-[0.8rem] font-semibold text-text">Status Filter</label>
+          <select name="status"
+                  class="filter-input px-4 rounded-[10px] border-[1.5px] border-slate-200 text-[0.85rem] text-text transition-all duration-200"
+                  style="height:40px; padding:0.5rem 1rem;">
+            <option value="">All Statuses</option>
+            <option value="pending"  {% if request.GET.status == "pending"  %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if request.GET.status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if request.GET.status == "rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+        </div>
+
+        <button type="submit"
+                class="btn-filter inline-flex items-center gap-2 px-6 py-[0.65rem] rounded-[10px] bg-navy text-white font-sora text-[0.85rem] font-bold border-none cursor-pointer transition-all duration-200"
+                style="height:40px;">
+          <i class="fas fa-filter"></i> Apply
+        </button>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200" style="width:50px;">#</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Tender Details</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Proposed Budget</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Payment Details</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Submission Date</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Status</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-left border-b-[1.5px] border-slate-200">Official Remarks</th>
+            <th class="bg-slate-50 text-muted font-dmSans text-[0.75rem] font-bold uppercase tracking-[0.05em] px-6 py-4 text-right border-b-[1.5px] border-slate-200">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bid in bids %}
+          <tr class="transition-colors duration-150">
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle text-muted font-semibold">{{ forloop.counter }}</td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle">
+              <span class="block font-semibold text-navy mb-[2px]">{{ bid.tender.title }}</span>
+              <span class="text-[0.8rem] text-muted"><i class="fas fa-building pe-1"></i>{{ bid.company_name }}</span>
+            </td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle font-sora font-bold" style="color:#10b981;">
+              ₹ {{ bid.bid_amount|floatformat:2 }}
+            </td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle">
+              {% if bid.payment_status == 'paid' %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i class="fas fa-check-circle"></i> Paid
+                </span><br>
+                <small class="text-muted" style="font-size:0.7rem;">Txn: {{ bid.razorpay_payment_id|default:"N/A" }}</small>
+              {% elif bid.payment_status == 'refunded' %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-slate-100 text-navy border border-slate-200">
+                  <i class="fas fa-undo"></i> Refunded
+                </span>
+              {% else %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-amber-50 text-amber-700 border border-amber-200">
+                  <i class="fas fa-hourglass-half"></i> Pending
+                </span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle text-muted">{{ bid.applied_at|date:"d M Y" }}</td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle">
+              {% if bid.status == "pending" %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-amber-50 text-amber-700 border border-amber-200">
+                  <i class="fas fa-hourglass-half"></i> Pending
+                </span>
+              {% elif bid.status == "approved" %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i class="fas fa-check-circle"></i> Approved
+                </span>
+              {% elif bid.status == "rejected" %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-red-50 text-red-700 border border-red-200">
+                  <i class="fas fa-times-circle"></i> Rejected
+                </span>
+              {% else %}
+                <span class="inline-flex items-center gap-1 px-3 py-[5px] rounded-[20px] text-[0.7rem] font-bold uppercase tracking-[0.04em] bg-slate-100 border border-slate-200">{{ bid.status }}</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle text-muted max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis">
+              {% if bid.remark %}{{ bid.remark }}{% else %}—{% endif %}
+            </td>
+            <td class="px-6 py-[1.1rem] border-b border-slate-100 text-[0.88rem] align-middle text-right">
+              <a href="{% url 'bids:bid_detail' bid.id %}"
+                 class="btn-action inline-flex items-center justify-center gap-1 px-4 py-[0.4rem] rounded-lg border border-slate-200 bg-white text-navy text-[0.75rem] font-semibold no-underline transition-all duration-200 mr-1">
+                <i class="fas fa-eye pe-1"></i> View
+              </a>
+              {% if bid.status == 'pending' %}
+              <a href="{% url 'bids:withdraw_bid' bid.id %}"
+                 onclick="return confirm('Are you sure you want to withdraw this bid?')"
+                 class="inline-flex items-center justify-center gap-1 px-4 py-[0.4rem] rounded-lg border text-red-500 bg-white text-[0.75rem] font-semibold no-underline transition-all duration-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                 style="border-color:#fecaca;">
+                <i class="fas fa-trash-alt pe-1"></i> Withdraw
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-12 px-4 text-muted">
+              <i class="fas fa-folder-open mb-3 block text-[2.5rem] opacity-30"></i>
+              <p class="m-0">No bid applications found matching your criteria.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
