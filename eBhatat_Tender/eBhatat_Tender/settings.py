@@ -29,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-+@upm9fo%5ic8uwvo5sz))$m9p97@1boq#!6+7^yv6&)oanu(x')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [".onrender.com", "localhost", "127.0.0.1", "squamulose-legal-keri.ngrok-free.dev"]  # Add your ngrok domain here
 
 # CSRF & Security for ngrok (HTTPS)
 CSRF_TRUSTED_ORIGINS = [
@@ -76,9 +76,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'eBhatat_Tender.urls'
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 TEMPLATES = [
     {
@@ -194,6 +201,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
