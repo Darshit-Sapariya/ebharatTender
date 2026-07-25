@@ -28,8 +28,9 @@ urlpatterns = [
     path('coreadmin/', include('coreadmin.urls')),
     path('funding/', include('funding.urls')),
     path('accounts/', include('allauth.urls')),
-
-    
 ]
-if settings.DEBUG:
+
+# Serve media files locally for development and when not using Cloudinary
+# In production with Cloudinary, media URLs are served directly from Cloudinary CDN
+if settings.DEBUG or not settings.USE_CLOUDINARY:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

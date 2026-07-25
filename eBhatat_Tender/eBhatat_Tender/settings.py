@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-+@upm9fo%5ic8uwvo5sz))$m9p97@1boq#!6+7^yv6&)oanu(x')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False 
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true' 
 
 ALLOWED_HOSTS = [".onrender.com", "localhost", "127.0.0.1", "squamulose-legal-keri.ngrok-free.dev"]  # Add your ngrok domain here
 
@@ -53,8 +53,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'cloudinary_storage',
-    'cloudinary',
+]
+
+# Only add cloudinary apps if they're actually installed
+try:
+    import cloudinary_storage
+    import cloudinary
+    INSTALLED_APPS.extend(['cloudinary_storage', 'cloudinary'])
+except ImportError:
+    pass
+
+INSTALLED_APPS.extend([
     'accounts',
     'tenders',
     'bids',
@@ -67,7 +76,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-]
+])
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,14 +92,30 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'eBhatat_Tender.urls'
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
+# ==================== MEDIA STORAGE CONFIGURATION ====================
+# Smart storage detection: uses Cloudinary if credentials present, otherwise filesystem
+
+# Import media storage configuration
+from eBhatat_Tender.media_config import get_storage_config
+_storage_config = get_storage_config()
+CLOUDINARY_STORAGE = _storage_config['CLOUDINARY_STORAGE']
+USE_CLOUDINARY = _storage_config['USE_CLOUDINARY']
+
+# Use media storage configuration from media_config.py
+STORAGES = _storage_config['STORAGES']
+
+# Configure Cloudinary if credentials are available and use_cloudinary is True
+if USE_CLOUDINARY:
+    try:
+        import cloudinary
+        # Configure Cloudinary with credentials from environment
+        cloudinary.config(
+            cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+            api_key=os.environ.get('CLOUDINARY_API_KEY'),
+            api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+        )
+    except ImportError:
+        pass  # Cloudinary not installed
 
 TEMPLATES = [
     {
@@ -209,30 +234,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
-}
-
-USE_CLOUDINARY = bool(
-    CLOUDINARY_STORAGE['CLOUD_NAME'] and
-    CLOUDINARY_STORAGE['API_KEY'] and
-    CLOUDINARY_STORAGE['API_SECRET']
-)
-
-# Use Cloudinary for uploaded media only; keep static files on WhiteNoise.
-if USE_CLOUDINARY:
-    STORAGES['default'] = {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
-    }
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-else:
-    STORAGES['default'] = {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    }
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # Razorpay Integration
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
