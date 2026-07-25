@@ -9,7 +9,11 @@ import os
 class Command(BaseCommand):
     help = 'Upload existing MEDIA files to Cloudinary and update FileField/ImageField values.'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--dry-run', action='store_true', help='Do not actually upload; just report what would be done.')
+
     def handle(self, *args, **options):
+        dry_run = options.get('dry_run', False)
         # Require Cloudinary to be enabled
         use_cloudinary = getattr(settings, 'USE_CLOUDINARY', False)
         if not use_cloudinary:
@@ -25,7 +29,8 @@ class Command(BaseCommand):
             if not file_fields:
                 continue
 
-            self.stdout.write(self.style.NOTICE(f'Checking model {model_name}'))
+            # Informational message
+            self.stdout.write(f'Checking model {model_name}')
 
             # Query instances that have any of these fields set
             qs = model.objects.all()
@@ -53,13 +58,16 @@ class Command(BaseCommand):
 
                     # Upload using the field's storage (which will be Cloudinary storage)
                     try:
-                        with open(local_path, 'rb') as fh:
-                            django_file = File(fh)
-                            # keep the same filename when saving to storage
-                            basename = os.path.basename(f.name)
-                            f.save(basename, django_file, save=True)
-                        total_uploaded += 1
-                        self.stdout.write(self.style.SUCCESS(f'Uploaded: {local_path} -> {getattr(obj, field_name).url}'))
+                        if dry_run:
+                            self.stdout.write(f'[dry-run] Would upload: {local_path} (model={model_name} id={obj.pk} field={field_name})')
+                        else:
+                            with open(local_path, 'rb') as fh:
+                                django_file = File(fh)
+                                # keep the same filename when saving to storage
+                                basename = os.path.basename(f.name)
+                                f.save(basename, django_file, save=True)
+                            total_uploaded += 1
+                            self.stdout.write(self.style.SUCCESS(f'Uploaded: {local_path} -> {getattr(obj, field_name).url}'))
                     except Exception as e:
                         self.stdout.write(self.style.ERROR(f'Error uploading {local_path}: {e}'))
 
