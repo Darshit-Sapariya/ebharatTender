@@ -105,44 +105,57 @@ Built using:
 # 🖥 Screenshots
 
 ## Home Page
-
-![Home Page](assets/screenshots/01_home.png)
-
----
-
-## User Registration & KYC Upload
-
-![User Registration](assets/screenshots/02_registration.png)
+![Home Page](ss/1home.png)
 
 ---
 
-## Tender Search & Catalog
-
-![Tender Search](assets/screenshots/03_tender_list.png)
-
----
-
-## Tender Details Page
-
-![Tender Details](assets/screenshots/04_tender_detail.png)
+## Tender Catalog & Search
+![Tender Search & Catalog](ss/2list.png)
 
 ---
 
-## Bid Submission Portal
-
-![Bid Submission](assets/screenshots/05_bid_submission.png)
+## Create Tender Request
+![Tender Generation Request](ss/Tender_genrat_req.png)
 
 ---
 
-## Razorpay EMD Payment Gateway
+## Publish Tender
+![Publish Tender](ss/Tender_publish.png)
 
-![Razorpay Payment](assets/screenshots/06_razorpay_emd.png)
+---
+
+## Bid Submission / Apply Tender
+![Bid Submission](ss/tender_apply.png)
+
+---
+
+## Funding & Grants Management
+![Funding & Grants](ss/3funding.png)
+
+---
+
+## Notice Board
+![Notice Board](ss/4noticebord.png)
+
+---
+
+## Tender Creator Dashboard
+![Creator Dashboard](ss/5crator_deshboard.png)
+
+---
+
+## Bidder Dashboard
+![Bidder Dashboard](ss/6bider_deshboard.jpeg)
 
 ---
 
 ## Core Admin Dashboard
+![Admin Dashboard](ss/Admin_deshboard.png)
 
-![Admin Panel](assets/screenshots/07_admin_dashboard.png)
+---
+
+## Admin Tender Approval Portal
+![Admin Tender Approval](ss/Admin_tender_approval.png)
 
 ---
 
