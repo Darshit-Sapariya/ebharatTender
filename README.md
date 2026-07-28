@@ -1,166 +1,235 @@
-# 🏛️ eBharat Tender (E-Procurement System)
+# 🏛️ eBharat Tender
 
-> **Simple Summary:** An online platform built with Django where government & private organizations post tenders, and contractors apply with document uploads and EMD payments.
+> Modern E-Procurement & Tender Bidding Portal built with **Django, Python & Bootstrap**.
 
----
-
-## 📌 Project Overview (Yeh Project Kya Karte Hai?)
-
-**eBharat Tender** ek e-bidding portal hai jo purane offline tender process ko online karta hai:
-1. **Tender Creator (Organization)**: Naya tender post karta hai.
-2. **Contractor / Bidder**: Tenders dhundta hai, apne documents upload karta hai aur EMD fee pay karke bid lagata hai.
-3. **Admin**: Profiles approve karta hai, bids review karta hai aur winning contractor ko tender award (🏆) karta hai.
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![Django](https://img.shields.io/badge/Django-6.0.2-green?logo=django)
+![Razorpay](https://img.shields.io/badge/Razorpay-EMD%20Payments-blue?logo=razorpay)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-Media%20Storage-blueviolet?logo=cloudinary)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
 
-## 📸 Screenshots & Image Placement (Yahan Screenshots Lagayein)
+## 📌 Overview
 
-> 📁 **Instructions:** Apne project root me `assets/screenshots/` naam ka folder banayein aur usme images rakhein.
+**eBharat Tender** is a modern **e-procurement and digital bidding management web application** designed for government agencies, private organizations, contractors, and financial institutions.
 
-### 1. Home Page (Main Landing Page)
-- **Image Location:** `assets/screenshots/01_home.png`
-- **Markdown Code to Copy:**
-```markdown
+The application digitizes the traditional offline tender submission process into a transparent online workflow—enabling organizations to publish tenders, contractors to submit technical/financial bids with document uploads, pay EMD fees securely via Razorpay, and admins to evaluate and award contracts.
+
+Built using:
+
+- Python
+- Django
+- HTML5
+- CSS3 & Bootstrap 5
+- JavaScript / jQuery
+- Cloudinary
+- SQLite / PostgreSQL
+
+---
+
+# ✨ Features
+
+## 🏢 User Registration & Profile Verification (KYC)
+
+- Role-based User Registration (Tender Creator & Bidder)
+- Government ID Upload (Aadhaar, PAN Card, Voter ID, Passport, Driving License, GSTIN)
+- Sensitive Government ID Masking (`********1234`)
+- Google OAuth2 Social Login (`django-allauth`)
+- In-App Notifications for Account Approvals & Status Updates
+
+---
+
+## 📋 Tender Management
+
+- Create & Draft Tenders with Detailed Specifications
+- Auto Tender ID Generation (`EBT-2026-0001`)
+- Department & Category Classification
+- Estimated Tender Value & EMD Fee Calculation
+- Pre-bid Meeting Date & Tender Closing Deadlines
+- Public Tender Searching & Filtering (by Department, Location, Status)
+- Downloadable Tender Document Uploads
+
+---
+
+## 💼 Bidding & Application Portal
+
+- Online Bid Application Form
+- Company Profile & GST Details Submission
+- Multi-Document Upload Support:
+  - GST Certificate Document
+  - Financial Statements
+  - Technical Bid Documents
+  - Financial Bid Documents
+- Real-time Bid Status Tracking (`Pending`, `Approved`, `Rejected`, `Awarded 🏆`)
+
+---
+
+## 💳 Razorpay EMD Payment Gateway
+
+- Integrated Razorpay Online Payment Gateway
+- Automatic Order Generation & Payment Verification
+- Safe Earnest Money Deposit (EMD) Transaction Tracking
+- Payment Status Management (`Pending`, `Paid`, `Refunded`)
+
+---
+
+## 🎛️ Core Admin & Moderation Panel
+
+- Custom Management Portal for System Administrators
+- User Profile KYC Approval & Rejection with Admin Remarks
+- Tender Publishing Approval Workflow
+- Bidders Evaluation & Contract Awarding (`Awarded 🏆`)
+- Automated Email & In-App Notification Triggers
+
+---
+
+## 📊 Funding & Financial Tracking
+
+- Project Budget Allocation
+- Escrow Security Deposit Management
+- Milestone-based Financial Tracking
+
+---
+
+## ⚡ Other Features
+
+- Responsive Bootstrap 5 UI
+- Fast Search & Datatables Integration
+- Cloud & Local Media Switcher (Cloudinary + Local Filesystem)
+- Dynamic Notifications System
+
+---
+
+# 🖥 Screenshots
+
+## Home Page
+
 ![Home Page](assets/screenshots/01_home.png)
-```
-*Description:* Public home screen showing recent tenders and search options.
 
 ---
 
-### 2. User Registration & KYC Upload
-- **Image Location:** `assets/screenshots/02_registration.png`
-- **Markdown Code to Copy:**
-```markdown
+## User Registration & KYC Upload
+
 ![User Registration](assets/screenshots/02_registration.png)
-```
-*Description:* Registration page where users upload Aadhaar / PAN / GSTIN for profile approval.
 
 ---
 
-### 3. Tender List & Search
-- **Image Location:** `assets/screenshots/03_tender_list.png`
-- **Markdown Code to Copy:**
-```markdown
+## Tender Search & Catalog
+
 ![Tender Search](assets/screenshots/03_tender_list.png)
-```
-*Description:* Tender catalog page with filtering by category, location, and department.
 
 ---
 
-### 4. Tender Details Page
-- **Image Location:** `assets/screenshots/04_tender_detail.png`
-- **Markdown Code to Copy:**
-```markdown
+## Tender Details Page
+
 ![Tender Details](assets/screenshots/04_tender_detail.png)
-```
-*Description:* Detailed view of a tender with Auto Tender ID (e.g., EBT-2026-0001) and document downloads.
 
 ---
 
-### 5. Bid Application & Document Upload
-- **Image Location:** `assets/screenshots/05_bid_submission.png`
-- **Markdown Code to Copy:**
-```markdown
-![Bid Form](assets/screenshots/05_bid_submission.png)
-```
-*Description:* Form for bidders to upload GST certificates, technical documents, and financial quotes.
+## Bid Submission Portal
+
+![Bid Submission](assets/screenshots/05_bid_submission.png)
 
 ---
 
-### 6. Razorpay EMD Payment Gateway
-- **Image Location:** `assets/screenshots/06_razorpay_emd.png`
-- **Markdown Code to Copy:**
-```markdown
+## Razorpay EMD Payment Gateway
+
 ![Razorpay Payment](assets/screenshots/06_razorpay_emd.png)
-```
-*Description:* Online EMD fee payment modal powered by Razorpay.
 
 ---
 
-### 7. Admin Dashboard & Awarding
-- **Image Location:** `assets/screenshots/07_admin_dashboard.png`
-- **Markdown Code to Copy:**
-```markdown
+## Core Admin Dashboard
+
 ![Admin Panel](assets/screenshots/07_admin_dashboard.png)
-```
-*Description:* Admin portal to approve user profiles, evaluate bids, and declare winner.
 
 ---
 
-## 🔄 Simple Project Flow (Kaise Kaam Karta Hai?)
+# 🛠 Tech Stack
 
-```mermaid
-flowchart LR
-    A[1. User Registration] --> B[2. Admin Approves Profile]
-    B --> C[3. Creator Posts Tender]
-    C --> D[4. Bidder Uploads Docs & Pays EMD]
-    D --> E[5. Admin Awards Winner 🏆]
-```
-
-1. **Step 1 (Account Creation)**: User register karta hai (Tender Creator ya Bidder) aur Aadhaar/PAN upload karta hai.
-2. **Step 2 (KYC Approval)**: Admin profile aur ID check karke approve karta hai.
-3. **Step 3 (Tender Posting)**: Creator naya tender daalta hai. System auto Tender ID (`EBT-2026-0001`) generate karta hai.
-4. **Step 4 (Bidding & Payment)**: Bidder bid bharhta hai, Financial/Technical PDFs upload karta hai aur Razorpay se EMD pay karta hai.
-5. **Step 5 (Contract Award)**: Admin best bid select karta hai aur winner declare karta hai.
-
----
-
-## 🔑 Main Features
-
-- 👤 **Two User Roles**: Tender Creator & Bidder.
-- 🆔 **Gov ID Masking**: Aadhaar/PAN numbers safety ke liye hide ho jaate hain (`********1234`).
-- 🔢 **Auto Tender ID**: Har tender ko unique ID milti hai (Jaise: `EBT-2026-0001`).
-- 💳 **Razorpay Payment Integration**: Safe EMD payment processing.
-- ☁️ **Cloud Storage**: Cloudinary support file & PDF uploads ke liye.
-- 🔔 **Notifications**: Real-time updates status change par.
+| Technology | Usage |
+|------------|-------|
+| Python | Backend |
+| Django 6.0.2 | Framework |
+| SQLite / PostgreSQL | Database |
+| HTML5 | Frontend Markup |
+| CSS3 | Styling |
+| Bootstrap 5 | UI Components |
+| JavaScript / jQuery | Client Side |
+| Razorpay API | EMD Payment Integration |
+| Cloudinary | Cloud File & PDF Storage |
+| WhiteNoise | Static Files Serving |
 
 ---
 
-## 📂 Project Structure (📁 Files Location)
+# 🚀 Installation
 
-- `accounts/` ➔ User register, login & ID proof upload.
-- `tenders/` ➔ Tender creation, list, filter & details.
-- `bids/` ➔ Bid submission & Razorpay EMD payment.
-- `coreadmin/` ➔ Admin approval & winner declaration panel.
-- `funding/` ➔ Budget allocation & funding tracking.
-- `public/` ➔ Landing page.
+Clone Repository
 
----
-
-## 🚀 How to Run the Project (Easy Setup)
-
-### 1. Project Download Karein
 ```bash
-git clone https://github.com/YOUR_USERNAME/ebharatTender.git
+git clone https://github.com/Darshit-Sapariya/ebharatTender.git
+```
+
+Move into project
+
+```bash
 cd ebharatTender
 ```
 
-### 2. Virtual Environment Banayein
+Create Virtual Environment
+
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
 ```
 
-### 3. Dependencies Install Karein
+Activate Virtual Environment
+
+```bash
+# Windows
+.venv\Scripts\activate
+
+# Linux / macOS
+source .venv/bin/activate
+```
+
+Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Database Setup
+Move into Django app directory
+
 ```bash
 cd eBhatat_Tender
+```
+
+Apply Migrations
+
+```bash
 python manage.py migrate
+```
+
+Create Admin Superuser
+
+```bash
 python manage.py createsuperuser
 ```
 
-### 5. Server Run Karein
+Run Django Server
+
 ```bash
 python manage.py runserver
 ```
-Browser me open karein: `http://127.0.0.1:8000/`
+
+Open your browser and visit: `http://127.0.0.1:8000/`
 
 ---
 
-## 📜 License
+# 👨‍💻 Developer
 
-This project is licensed under the **MIT License**.
+**Darshit Sapariya**  
+Python Django Developer  
+
+⭐ If you like this project, don't forget to Star the repository.
