@@ -108,6 +108,11 @@ body{background-color:#E2E8F0;font-family:'Inter',sans-serif;color:#1E293B;line-
     <div style="margin-top: 15px; font-size: 12px; color: #94A3B8;">
       © 2026 Government of India. All rights reserved.
     </div>
+    {% if sent_at %}
+    <div style="margin-top: 8px; font-size: 11px; color: #CBD5E1;">
+      ✉ Email dispatched on: {{ sent_at }}
+    </div>
+    {% endif %}
   </div>
 </div>
 </body>

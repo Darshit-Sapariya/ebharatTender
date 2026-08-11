@@ -10,6 +10,8 @@ def send_ebharat_email(subject, template_name, context, recipient_list, attachme
     """
     Sends a high-quality HTML email using a template.
     Completely fail-safe: catches all exceptions so email failures never crash the application.
+    Auto-injects 'sent_at' (formatted IST timestamp) into context so all templates can display
+    the exact email send time.
     """
     try:
         # 1. Sanitize recipient list
@@ -22,21 +24,48 @@ def send_ebharat_email(subject, template_name, context, recipient_list, attachme
             logger.warning("send_ebharat_email: No valid recipient email addresses found")
             return False
 
-        # 2. Get safe from_email
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None) or 'ebharattender@gmail.com'
+        # 2. Pre-flight: warn if SMTP password is missing (common on fresh deployments)
+        smtp_password = getattr(settings, 'EMAIL_HOST_PASSWORD', None)
+        if not smtp_password:
+            logger.warning(
+                "send_ebharat_email: EMAIL_HOST_PASSWORD is not set. "
+                "Email will likely fail. Set this environment variable in your deployment "
+                "(e.g. Render Dashboard → Environment Variables)."
+            )
 
-        # 3. Render HTML content safely
+        # 3. Get safe from_email
+        from_email = (
+            getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+            or getattr(settings, 'EMAIL_HOST_USER', None)
+            or 'ebharattender@gmail.com'
+        )
+
+        # 4. Auto-inject sent_at timestamp so all templates can display the send time
+        from django.utils import timezone
+        try:
+            from zoneinfo import ZoneInfo
+            ist = ZoneInfo('Asia/Kolkata')
+            now_ist = timezone.now().astimezone(ist)
+            sent_at_str = now_ist.strftime('%d %b %Y, %I:%M %p IST')
+        except Exception:
+            from datetime import datetime
+            sent_at_str = datetime.now().strftime('%d %b %Y, %I:%M %p')
+
+        merged_context = dict(context or {})
+        merged_context.setdefault('sent_at', sent_at_str)
+
+        # 5. Render HTML content safely
         try:
             template_path = f'emails/{template_name}' if not template_name.startswith('emails/') else template_name
-            html_content = render_to_string(template_path, context or {})
+            html_content = render_to_string(template_path, merged_context)
         except Exception as te:
             logger.error(f"Template rendering error for {template_name}: {te}")
             html_content = f"<h2>{subject}</h2><p>Please check your account portal for details.</p>"
 
-        # 4. Strip tags for plain text
+        # 6. Strip tags for plain text
         text_content = strip_tags(html_content)
 
-        # 5. Build email object
+        # 7. Build email object
         email = EmailMultiAlternatives(
             subject=f"{subject} | eBharat Tender",
             body=text_content,
@@ -46,7 +75,7 @@ def send_ebharat_email(subject, template_name, context, recipient_list, attachme
 
         email.attach_alternative(html_content, "text/html")
 
-        # 6. Attach any files safely
+        # 8. Attach any files safely
         if attachments:
             for attachment in attachments:
                 try:
@@ -59,7 +88,7 @@ def send_ebharat_email(subject, template_name, context, recipient_list, attachme
                 except Exception as ae:
                     logger.error(f"Attachment error in email for {subject}: {ae}")
 
-        # 7. Send email safely with fail_silently=False wrapped in exception handler
+        # 9. Send email safely with fail_silently=False wrapped in exception handler
         sent_count = email.send(fail_silently=False)
         return bool(sent_count)
 

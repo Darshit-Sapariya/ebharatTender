@@ -170,6 +170,43 @@
     text-align:center;
     line-height:1.5;
   }
+  .ebharat-send-time {
+    font-size:12px;
+    color:#94a3b8;
+    text-align:center;
+    margin-top:4px;
+    letter-spacing:0.3px;
+  }
+
+  /* ERROR STATE */
+  .ebharat-error-wrap {
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+  .ebharat-error-circle {
+    width:72px;height:72px;
+    border-radius:50%;
+    background:rgba(220,38,38,0.1);
+    border:2px solid #DC2626;
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;
+    color:#DC2626;
+  }
+  .ebharat-error-title {
+    font-family:'Rajdhani',sans-serif;
+    font-size:20px;
+    font-weight:700;
+    color:#DC2626;
+    letter-spacing:0.5px;
+  }
+  .ebharat-error-sub {
+    font-size:13px;
+    color:#64748b;
+    text-align:center;
+    line-height:1.5;
+  }
 </style>
 
 <!-- LOADER OVERLAY -->
@@ -212,7 +249,15 @@
         </svg>
       </div>
       <div class="ebharat-success-title">Successfully Processed!</div>
-      <div class="ebharat-success-sub">Your request has been processed<br>and notifications sent</div>
+      <div class="ebharat-success-sub">Your request has been processed<br>and email notification sent</div>
+      <div class="ebharat-send-time" id="ebharatSendTime"></div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div class="ebharat-error-wrap" id="ebharatErrorState">
+      <div class="ebharat-error-circle">&#x26A0;</div>
+      <div class="ebharat-error-title">Action Failed</div>
+      <div class="ebharat-error-sub" id="ebharatErrorMsg">A server error occurred.<br>Please try again or contact support.</div>
     </div>
   </div>
 </div>
@@ -262,24 +307,38 @@ function triggerEbharatLoader() {
   }, 100);
 }
 
-function completeEbharatLoader() {
+function completeEbharatLoader(isSuccess) {
   const loadingState = document.getElementById('ebharatLoadingState');
   const successState = document.getElementById('ebharatSuccessState');
+  const errorState = document.getElementById('ebharatErrorState');
   const progressBar = document.getElementById('ebharatProgressBar');
   const statusText = document.getElementById('ebharatStatusText');
   const checkmarkPath = document.getElementById('ebharatCheckmarkPath');
   const overlay = document.getElementById('ebharatLoaderOverlay');
+  const sendTimeEl = document.getElementById('ebharatSendTime');
 
   clearInterval(ebharatMsgInterval);
   progressBar.style.width = '100%';
   statusText.classList.remove('ebharat-dots-anim');
-  statusText.textContent = "Done";
+  statusText.textContent = isSuccess ? "Done" : "Error";
 
   setTimeout(() => {
     loadingState.style.display = 'none';
-    successState.style.display = 'flex';
-    successState.style.animation = 'ebharat-success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards';
-    checkmarkPath.style.animation = 'ebharat-draw-check 0.5s ease 0.1s forwards';
+    if (isSuccess) {
+      // Show email send time
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      const dateStr = now.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+      if (sendTimeEl) sendTimeEl.textContent = '\u2709 Email sent at ' + timeStr + ', ' + dateStr;
+      errorState.style.display = 'none';
+      successState.style.display = 'flex';
+      successState.style.animation = 'ebharat-success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards';
+      checkmarkPath.style.animation = 'ebharat-draw-check 0.5s ease 0.1s forwards';
+    } else {
+      successState.style.display = 'none';
+      errorState.style.display = 'flex';
+      errorState.style.animation = 'ebharat-success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards';
+    }
   }, 300);
 }
 
@@ -331,16 +390,39 @@ document.addEventListener('submit', function(e) {
        // Convert to text to inject back
        return response.text().then(text => ({text, response}));
     }).then(({text, response}) => {
-       completeEbharatLoader();
-       // Keep success state up for 1.8 seconds, then inject the new page
-       setTimeout(() => {
-          document.open();
-          document.write(text);
-          document.close();
-          if (response.redirected) {
-             window.history.pushState({}, '', response.url);
-          }
-       }, 1800);
+       if (!response.ok) {
+         // Server returned 4xx / 5xx — show error state
+         const errMsgEl = document.getElementById('ebharatErrorMsg');
+         if (errMsgEl) {
+           if (response.status === 500) {
+             errMsgEl.innerHTML = 'Internal server error (500).<br>Please check SMTP / email settings and try again.';
+           } else if (response.status === 403) {
+             errMsgEl.innerHTML = 'Permission denied (403).<br>Please refresh the page and try again.';
+           } else {
+             errMsgEl.innerHTML = 'Server error (' + response.status + ').<br>Please try again or contact support.';
+           }
+         }
+         completeEbharatLoader(false);
+         // Re-enable submit button on error
+         if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; }
+         // After 3 seconds close the overlay so user can retry
+         setTimeout(() => {
+           const overlay = document.getElementById('ebharatLoaderOverlay');
+           if (overlay) { overlay.classList.remove('active'); overlay.classList.add('fade-out'); }
+           setTimeout(() => { if (overlay) overlay.classList.remove('fade-out'); }, 400);
+         }, 3000);
+       } else {
+         completeEbharatLoader(true);
+         // Keep success state up for 1.8 seconds, then inject the new page
+         setTimeout(() => {
+            document.open();
+            document.write(text);
+            document.close();
+            if (response.redirected) {
+               window.history.pushState({}, '', response.url);
+            }
+         }, 1800);
+       }
     }).catch(err => {
        console.error("AJAX submit failed", err);
        form.submit(); // fallback

@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-+@upm9fo%5ic8uwvo5sz))$m9p97@1boq#!6+7^yv6&)oanu(x')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true' 
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'false' 
 
 ALLOWED_HOSTS = [".onrender.com", "localhost", "127.0.0.1", "squamulose-legal-keri.ngrok-free.dev"]  # Add your ngrok domain here
 
