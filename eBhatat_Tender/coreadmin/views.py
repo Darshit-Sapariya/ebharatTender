@@ -921,19 +921,20 @@ def reply_enquiry(request, enquiry_id):
             recipient_list=[enquiry.email]
         )
         
+        enquiry.status = 'replied'
+        enquiry.admin_reply = reply_message
+        enquiry.save()
+        
+        ActionLog.objects.create(
+            admin_user=request.user,
+            action_type="ENQUIRY_REPLY",
+            description=f"Replied to enquiry #{enquiry.id} from {enquiry.full_name} ({enquiry.email})."
+        )
+        
         if success:
-            enquiry.status = 'replied'
-            enquiry.admin_reply = reply_message
-            enquiry.save()
-            
-            ActionLog.objects.create(
-                admin_user=request.user,
-                action_type="ENQUIRY_REPLY",
-                description=f"Replied to enquiry from {enquiry.full_name}"
-            )
-            messages.success(request, f"Reply sent successfully to {enquiry.email}")
+            messages.success(request, f"Reply sent successfully to {enquiry.email}.")
         else:
-            messages.error(request, "Failed to send email. Please check SMTP settings.")
+            messages.warning(request, f"Reply saved for {enquiry.full_name}, but email notification could not be delivered via SMTP. Please check SMTP settings.")
             
     return redirect('coreadmin:enquiry_list')
 
