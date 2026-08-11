@@ -27,7 +27,7 @@ def notifications(request):
                 stats['pending_enquiries_count'] = Enquiry.objects.filter(status='pending').count()
                 
                 # 2. User/Profile Approvals
-                stats['pending_user_approvals'] = UserProfile.objects.filter(status='pending').exclude(user__is_superuser=True).exclude(user__is_staff=True).count()
+                stats['pending_user_approvals'] = UserProfile.objects.filter(status='pending', user__isnull=False).exclude(user__is_superuser=True).exclude(user__is_staff=True).count()
                 
                 # 3. Tender Requests
                 stats['pending_admin_req_count'] = AdminRequest.objects.filter(status='pending').count()

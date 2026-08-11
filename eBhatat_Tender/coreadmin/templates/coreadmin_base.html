@@ -331,18 +331,21 @@
               flex flex-col z-[200] overflow-hidden -translate-x-full lg:translate-x-0">
 
   <!-- Brand -->
-  <a href="{% url 'coreadmin:deshbord' %}"
-     class="flex items-center gap-[0.6rem] px-4 py-[0.9rem] border-b border-slate-100
-            flex-shrink-0 relative z-[1] no-underline group">
-    <div>
-      <span class="font-sora text-[0.88rem] font-extrabold text-slate-800 leading-tight">
-        eBharat Administration Panel
-        <span class="block text-[0.52rem] font-normal text-slate-400 tracking-[0.08em] uppercase mt-[1px]">
-          Control Center
+  <div class="flex items-center justify-between px-4 py-[0.9rem] border-b border-slate-100 flex-shrink-0 relative z-[1]">
+    <a href="{% url 'coreadmin:deshbord' %}" class="no-underline group">
+      <div>
+        <span class="font-sora text-[0.88rem] font-extrabold text-slate-800 leading-tight block">
+          eBharat Administration Panel
+          <span class="block text-[0.52rem] font-normal text-slate-400 tracking-[0.08em] uppercase mt-[1px]">
+            Control Center
+          </span>
         </span>
-      </span>
-    </div>
-  </a>
+      </div>
+    </a>
+    <button onclick="closeSidebar()" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 text-sm cursor-pointer transition-colors" aria-label="Close menu">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
   <!-- Nav -->
   <nav class="sidebar-nav flex-1 overflow-y-auto px-2.5 pb-3 pt-1 relative z-[1]">
@@ -677,6 +680,8 @@
       if (loader) loader.classList.remove('hidden');
     }
   });
+</script>
+
 <!-- Global System Loader -->
 <div id="system-loader" 
      style="position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);

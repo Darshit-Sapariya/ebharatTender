@@ -59,5 +59,27 @@ class TenderApplication(models.Model):
     # ================= TIMESTAMP =================
     applied_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def user(self):
+        return self.applicant
+
+    @property
+    def safe_technical_doc_url(self):
+        if self.technical_document:
+            try:
+                return self.technical_document.url
+            except Exception:
+                return None
+        return None
+
+    @property
+    def safe_financial_doc_url(self):
+        if self.financial_document:
+            try:
+                return self.financial_document.url
+            except Exception:
+                return None
+        return None
+
     def __str__(self):
         return f"{self.company_name} - {self.tender.title}"

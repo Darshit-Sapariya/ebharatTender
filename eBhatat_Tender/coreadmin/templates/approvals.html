@@ -112,7 +112,7 @@
           <tr style="border-bottom:1px solid var(--border);transition:background 0.2s;">
             <td style="padding:18px 20px;" data-label="User">
               <div style="display:flex;gap:12px;align-items:center;">
-                {% if profile.profile_pic %}<img src="{{ profile.profile_pic.url }}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+                {% if profile.safe_profile_pic_url %}<img src="{{ profile.safe_profile_pic_url }}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
                 {% else %}<div style="width:36px;height:36px;border-radius:8px;background:var(--bg1);display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="color:var(--text);opacity:0.5;font-size:0.8rem;"></i></div>{% endif %}
                 <div>
                   <div style="font-weight:600;font-size:14px;color:var(--text);">{{ profile.full_name|default:profile.user.username }}</div>
@@ -123,7 +123,7 @@
             <td style="padding:18px 20px;" data-label="Gov ID">
               <div style="font-size:13px;font-weight:500;color:var(--text);">{{ profile.gov_id_type|upper|default:"―" }}</div>
               <div style="font-size:11px;color:var(--text);opacity:0.6;margin-bottom:4px;font-family:monospace;">{{ profile.masked_id }}</div>
-              {% if profile.gov_id_upload %}<a href="{{ profile.gov_id_upload.url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:500;"><i class="fas fa-file-pdf"></i> View Document</a>
+              {% if profile.safe_gov_id_upload_url %}<a href="{{ profile.safe_gov_id_upload_url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:500;"><i class="fas fa-file-pdf"></i> View Document</a>
               {% else %}<span style="font-size:12px;color:var(--red);">No Document</span>{% endif %}
             </td>
             <td style="padding:18px 20px;" data-label="Role">
@@ -136,7 +136,7 @@
             </td>
             <td style="padding:18px 20px;text-align:right;" data-label="">
               <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('user','{{ profile.id }}','{{ profile.user.username }}','{{ profile.role }}','{% if profile.gov_id_upload %}{{ profile.gov_id_upload.url }}{% endif %}')">Check</button>
+                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('user','{{ profile.id }}','{{ profile.user.username|escapejs }}','{{ profile.role|default:''|escapejs }}','{% if profile.safe_gov_id_upload_url %}{{ profile.safe_gov_id_upload_url|escapejs }}{% endif %}')">Check</button>
                 <button class="btn btn-outline-danger btn-sm" onclick="openRejectModal('user','{{ profile.id }}')">Reject</button>
               </div>
             </td>
@@ -155,19 +155,19 @@
             </td>
             <td style="padding:18px 20px;" data-label="Tender">
               <div style="font-weight:600;font-size:13px;color:var(--accent);">{{ app.tender.title|truncatechars:40 }}</div>
-              <div style="font-size:12px;color:var(--text);opacity:0.6;margin-top:4px;">ID: TND-{{ app.tender.tender_id }} • {{ app.tender.category }}</div>
+              <div style="font-size:12px;color:var(--text);opacity:0.6;margin-top:4px;">ID: {{ app.tender.tender_id|default:"TND" }} • {{ app.tender.category }}</div>
             </td>
             <td style="padding:18px 20px;" data-label="Bid Amount">
               <div style="font-family:monospace;font-weight:700;font-size:15px;color:var(--text);">₹{{ app.bid_amount|intcomma }}</div>
               <div style="font-size:11px;color:var(--text);opacity:0.5;text-decoration:line-through;margin-top:2px;">Est: ₹{{ app.tender.estimated_value|intcomma }}</div>
             </td>
             <td style="padding:18px 20px;" data-label="Documents">
-              {% if app.technical_bid %}<a href="{{ app.technical_bid.url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:500;"><i class="fas fa-file-pdf"></i> Technical Doc</a>{% endif %}
-              {% if app.financial_bid %}<a href="{{ app.financial_bid.url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:500;"><i class="fas fa-file-invoice-dollar"></i> Financial Doc</a>{% endif %}
+              {% if app.safe_technical_doc_url %}<a href="{{ app.safe_technical_doc_url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:500;"><i class="fas fa-file-pdf"></i> Technical Doc</a>{% endif %}
+              {% if app.safe_financial_doc_url %}<a href="{{ app.safe_financial_doc_url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:500;"><i class="fas fa-file-invoice-dollar"></i> Financial Doc</a>{% endif %}
             </td>
             <td style="padding:18px 20px;text-align:right;" data-label="">
               <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('app','{{ app.id }}','{{ app.company_name }} Bid','','{% if app.technical_bid %}{{ app.technical_bid.url }}{% endif %}')">Approve</button>
+                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('app','{{ app.id }}','{{ app.company_name|escapejs }} Bid','','{% if app.safe_technical_doc_url %}{{ app.safe_technical_doc_url|escapejs }}{% endif %}')">Approve</button>
                 <button class="btn btn-outline-danger btn-sm" onclick="openRejectModal('app','{{ app.id }}')">Reject</button>
               </div>
             </td>
@@ -186,19 +186,19 @@
             </td>
             <td style="padding:18px 20px;" data-label="Scheme">
               <div style="font-weight:600;font-size:13px;color:var(--accent);">{{ app.funding.title|truncatechars:40 }}</div>
-              <div style="font-size:12px;color:var(--text);opacity:0.6;margin-top:4px;">Tender: TND-{{ app.tender.tender_id }}</div>
+              <div style="font-size:12px;color:var(--text);opacity:0.6;margin-top:4px;">Tender: {{ app.tender.tender_id|default:"TND" }}</div>
             </td>
             <td style="padding:18px 20px;" data-label="Amount">
               <div style="font-family:monospace;font-weight:700;font-size:15px;color:var(--text);">₹{{ app.amount_requested|intcomma }}</div>
               <div style="font-size:11px;color:var(--text);opacity:0.6;margin-top:2px;">Purpose: {{ app.purpose|truncatechars:30 }}</div>
             </td>
             <td style="padding:18px 20px;" data-label="Documents">
-              {% if app.supporting_document %}<a href="{{ app.supporting_document.url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:500;"><i class="fas fa-file-pdf"></i> View Doc</a>
+              {% if app.safe_supporting_doc_url %}<a href="{{ app.safe_supporting_doc_url }}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:500;"><i class="fas fa-file-pdf"></i> View Doc</a>
               {% else %}<span style="font-size:12px;color:var(--text);opacity:0.5;">No Document</span>{% endif %}
             </td>
             <td style="padding:18px 20px;text-align:right;" data-label="">
               <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('funding_app','{{ app.id }}','{{ app.bidder.username }} Request','','{% if app.supporting_document %}{{ app.supporting_document.url }}{% endif %}')">Approve</button>
+                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('funding_app','{{ app.id }}','{{ app.bidder.username|escapejs }} Request','','{% if app.safe_supporting_doc_url %}{{ app.safe_supporting_doc_url|escapejs }}{% endif %}')">Approve</button>
                 <button class="btn btn-outline-danger btn-sm" onclick="openRejectModal('funding_app','{{ app.id }}')">Reject</button>
               </div>
             </td>

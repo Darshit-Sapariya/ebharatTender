@@ -80,8 +80,8 @@ def coreadmin_dashboard(request):
 # Renders a list of users awaiting profile verification
 @staff_member_required
 def user_approvals(request):
-    pending_users = UserProfile.objects.filter(status='pending').exclude(user__is_superuser=True).exclude(user__is_staff=True).order_by('-created_at')
-    approved_users = UserProfile.objects.filter(status='approved').order_by('-created_at')[:20]
+    pending_users = UserProfile.objects.filter(status='pending', user__isnull=False).exclude(user__is_superuser=True).exclude(user__is_staff=True).order_by('-created_at')
+    approved_users = UserProfile.objects.filter(status='approved', user__isnull=False).order_by('-created_at')[:20]
     return render(request, 'approvals.html', {
         'page_title': 'User Approvals',
         'pending_users': pending_users,

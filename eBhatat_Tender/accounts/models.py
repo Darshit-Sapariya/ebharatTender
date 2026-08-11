@@ -73,6 +73,24 @@ class UserProfile(models.Model):
         val = str(self.gov_id_number)
         return "*" * (len(val) - 4) + val[-4:] if len(val) > 4 else val
 
+    @property
+    def safe_profile_pic_url(self):
+        if self.profile_pic:
+            try:
+                return self.profile_pic.url
+            except Exception:
+                return None
+        return None
+
+    @property
+    def safe_gov_id_upload_url(self):
+        if self.gov_id_upload:
+            try:
+                return self.gov_id_upload.url
+            except Exception:
+                return None
+        return None
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

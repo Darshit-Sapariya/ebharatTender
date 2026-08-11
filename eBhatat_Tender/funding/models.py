@@ -29,5 +29,14 @@ class FundingApplication(models.Model):
     applied_at = models.DateTimeField(auto_now_add=True)
     admin_remark = models.TextField(blank=True, null=True)
 
+    @property
+    def safe_supporting_doc_url(self):
+        if self.supporting_document:
+            try:
+                return self.supporting_document.url
+            except Exception:
+                return None
+        return None
+
     def __str__(self):
         return f"{self.bidder.username} - {self.funding.title}"
