@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
-from .utils import send_ebharat_email
+from .utils import send_ebharat_email, send_email_in_background
 from django.contrib.sites.shortcuts import get_current_site
 from .services import update_user_profile, handle_user_onboarding
 
@@ -207,7 +207,7 @@ def register(request):
         # 📧 Send Welcome Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject="Welcome to eBharat Tender Portal",
                 template_name="welcome_email.html",
                 context={

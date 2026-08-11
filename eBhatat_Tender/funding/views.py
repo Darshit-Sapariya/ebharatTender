@@ -4,7 +4,7 @@ from django.contrib import messages
 from .models import Funding, FundingApplication
 from tenders.models import Tenderss
 from django.db.models import Sum
-from accounts.utils import send_ebharat_email
+from accounts.utils import send_ebharat_email, send_email_in_background
 from django.contrib.sites.shortcuts import get_current_site
 
 @login_required
@@ -43,7 +43,7 @@ def apply_funding(request, funding_id, tender_id):
                 pdf_filename = f"Funding_Application_{funding.id}.pdf"
                 
                 current_site = get_current_site(request)
-                send_ebharat_email(
+                send_email_in_background(
                     subject=f"Funding Request Confirmation - {funding.title}",
                     template_name="funding_application_confirmation.html",
                     context={

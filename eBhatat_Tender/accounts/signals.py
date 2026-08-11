@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.contrib.sites.shortcuts import get_current_site
 from allauth.account.signals import user_signed_up
-from .utils import send_ebharat_email
+from .utils import send_ebharat_email, send_email_in_background
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ def send_welcome_email_on_signup(request, user, **kwargs):
         
         logger.info(f"Sending welcome email to {email}")
         
-        send_ebharat_email(
+        send_email_in_background(
             subject="Welcome to eBharat Tender Portal",
             template_name="welcome_email.html",
             context={

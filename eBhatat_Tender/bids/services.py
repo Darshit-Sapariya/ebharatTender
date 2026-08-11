@@ -2,7 +2,7 @@ import razorpay
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.sites.shortcuts import get_current_site
-from accounts.utils import send_ebharat_email
+from accounts.utils import send_ebharat_email, send_email_in_background
 from .models import TenderApplication
 import logging
 
@@ -63,7 +63,7 @@ def award_bid_service(bid, request):
             'mimetype': 'application/pdf'
         }]
         
-        send_ebharat_email(
+        send_email_in_background(
             subject="Congratulations! Tender Awarded",
             template_name="bid_awarded.html",
             context=context,

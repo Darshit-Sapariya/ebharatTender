@@ -13,7 +13,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
-from accounts.utils import send_ebharat_email
+from accounts.utils import send_ebharat_email, send_email_in_background
 from django.contrib.sites.shortcuts import get_current_site
 import calendar
 import json
@@ -132,7 +132,7 @@ def approve_user(request, profile_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject="Account Approved",
                 template_name="status_update_notification.html",
                 context={
@@ -171,7 +171,7 @@ def reject_user(request, profile_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject="Account Verification Status Update",
                 template_name="status_update_notification.html",
                 context={
@@ -204,7 +204,7 @@ def approve_application(request, app_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject=f"Bid Approved - {application.tender.title}",
                 template_name="status_update_notification.html",
                 context={
@@ -249,7 +249,7 @@ def reject_application(request, app_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject=f"Bid Application Status Update - {application.tender.title}",
                 template_name="status_update_notification.html",
                 context={
@@ -308,7 +308,7 @@ def approve_funding_app(request, app_id):
             
             from django.utils import timezone
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject=f"Funding Approved - {app.funding.title}",
                 template_name="funding_awarded.html",
                 context={
@@ -348,7 +348,7 @@ def reject_funding_app(request, app_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject=f"Funding Application Status Update - {app.funding.title}",
                 template_name="status_update_notification.html",
                 context={
@@ -415,7 +415,7 @@ def create_staff(request):
             # 📧 Send Welcome/Staff Creation Email
             try:
                 current_site = get_current_site(request)
-                send_ebharat_email(
+                send_email_in_background(
                     subject="Your Staff Account has been Created",
                     template_name="welcome_email.html",
                     context={
@@ -560,7 +560,7 @@ def approve_admin_request(request, request_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject="Administrative Request Approved",
                 template_name="status_update_notification.html",
                 context={
@@ -600,7 +600,7 @@ def reject_admin_request(request, request_id):
         # 📧 Send Status Email
         try:
             current_site = get_current_site(request)
-            send_ebharat_email(
+            send_email_in_background(
                 subject="Administrative Request Update",
                 template_name="status_update_notification.html",
                 context={
@@ -726,7 +726,7 @@ def allocate_user_role(request, profile_id):
             # 📧 Send Role Update Email
             try:
                 current_site = get_current_site(request)
-                send_ebharat_email(
+                send_email_in_background(
                     subject="Account Role Updated",
                     template_name="status_update_notification.html",
                     context={
@@ -914,7 +914,7 @@ def reply_enquiry(request, enquiry_id):
             'original_message': enquiry.message
         }
         
-        success = send_ebharat_email(
+        success = send_email_in_background(
             subject=f"RE: {enquiry.subject}",
             template_name='enquiry_reply.html',
             context=context,

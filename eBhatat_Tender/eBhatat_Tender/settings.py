@@ -249,6 +249,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'ebharattender@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Timeout (seconds) for SMTP connection — prevents smtplib from hanging forever
+# on Render or any environment where port 587 is blocked/slow.
+# After this many seconds, socket.timeout is raised and caught by send_ebharat_email().
+EMAIL_TIMEOUT = 10
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

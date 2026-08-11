@@ -96,3 +96,20 @@ def send_ebharat_email(subject, template_name, context, recipient_list, attachme
         logger.error(f"SMTP / Email dispatch error for '{subject}' to {recipient_list}: {e}")
         print(f"SMTP Error: {e}")
         return False
+
+
+def send_email_in_background(subject, template_name, context, recipient_list, attachments=None):
+    """
+    Triggers send_ebharat_email asynchronously in a background daemon thread.
+    This guarantees that email sending will NEVER block the main Django HTTP request/response cycle,
+    preventing Gunicorn worker timeouts even if SMTP hangs or fails on Render.
+    """
+    import threading
+    thread = threading.Thread(
+        target=send_ebharat_email,
+        args=(subject, template_name, context, recipient_list, attachments),
+        daemon=True
+    )
+    thread.start()
+    return True
+

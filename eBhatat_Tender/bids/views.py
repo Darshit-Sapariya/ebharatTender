@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.conf import settings
 import razorpay
-from accounts.utils import send_ebharat_email
+from accounts.utils import send_ebharat_email, send_email_in_background
 from django.contrib.sites.shortcuts import get_current_site
 from .models import TenderApplication
 from tenders.models import Tenderss
@@ -231,7 +231,7 @@ def applybid(request, tender_id):
                     'mimetype': 'application/pdf'
                 }
                 current_site = get_current_site(request)
-                send_ebharat_email(
+                send_email_in_background(
                     subject=f"Bid Submission Confirmation - {tender.title}",
                     template_name="bid_confirmation.html",
                     context={
